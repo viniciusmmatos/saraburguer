@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel de Pedidos</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center p-6">
+
+  <h1 class="text-4xl font-bold mb-8">Painel de Pedidos</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-6xl">
+
+    <!-- Em Preparo -->
+    <div>
+      <h2 class="text-2xl font-semibold mb-4 text-yellow-400">🧑🏻‍🍳 Em Preparo</h2>
+      <div id="em-preparo" class="space-y-4">
+        <!-- Pedidos em preparo -->
+      </div>
+    </div>
+
+    <!-- Prontos -->
+    <div>
+      <h2 class="text-2xl font-semibold mb-4 text-green-400">✅ Prontos</h2>
+      <div id="prontos" class="space-y-4">
+        <!-- Pedidos prontos -->
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    function criarBlocoPedido(pedido) {
+      const bloco = document.createElement('div');
+      bloco.className = 'bg-gray-800 rounded-lg p-6 shadow text-center text-2xl font-bold fade-in';
+      bloco.innerHTML = `
+    <div class="text-xl">${pedido.nome_cliente}</div>
+    <div class="text-sm mt-2">Quantidade: ${pedido.quantidade} | Hora retirada: ${pedido.hora_retirada}</div>
+  `;
+      return bloco;
+    }
+
+    function atualizarPainel(pedidos) {
+      const emPreparoDiv = document.getElementById('em-preparo');
+      const prontosDiv = document.getElementById('prontos');
+      emPreparoDiv.innerHTML = '';
+      prontosDiv.innerHTML = '';
+
+      pedidos.forEach(p => {
+        const bloco = criarBlocoPedido(p);
+        if (p.status === 'em_preparo') emPreparoDiv.appendChild(bloco);
+        if (p.status === 'pronto') prontosDiv.appendChild(bloco);
+      });
+    }
+
+    socket.on('pedidos_atualizados', atualizarPainel);
+  </script>
+
+</body>
+
+</html>

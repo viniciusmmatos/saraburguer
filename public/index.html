@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestão de Pedidos</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 p-8">
+  <h1 class="text-4xl font-bold mb-7">Painel de gestão dos pedidos | SARABURGUER 🍔🧑🏻‍🍳</h1>
+  <div class="flex justify-between items-center mb-6">
+    <div class="flex space-x-4">
+      <button onclick="alterarFormulario()" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded">
+        ➕ Novo Pedido
+      </button>
+      <button onclick="imprimirSelecionados()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded">
+        🖨️ Imprimir Selecionados
+      </button>
+      <button onclick="imprimirTodosEmPreparo()" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">
+        🖨️ Imprimir Todos em Preparo
+      </button>
+      <button onclick="exportarBackup()" class="bg-blue-800 hover:bg-blue-900 text-white py-2 px-4 rounded">
+        📤 Exportar Backup
+      </button>
+      <a href="/exportar-pdf" target="_blank" class="bg-blue-600 hover:bg-pink-700 text-white py-2 px-4 rounded">
+        📄 Baixar Relatório PDF
+      </a> <!--em implementação-->
+    </div>
+
+    <a href="index2.html" target="_blank" class="ml-auto bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">
+      🍳 Painel da Cozinha
+    </a>
+  </div>
+
+  <div id="bloco-formulario" class="mb-6 bg-white p-4 rounded shadow hidden">
+    <h2 class="text-xl font-bold mb-4">Novo Pedido</h2>
+    <form id="form-novo-pedido" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input name="nome_cliente" class="border p-2 rounded" placeholder="Nome do Cliente" required>
+      <input name="telefone" class="border p-2 rounded" placeholder="Telefone" required>
+      <input name="endereco" class="border p-2 rounded" placeholder="Endereço">
+      <select name="equipe_vendedor" class="border p-2 rounded" required>
+        <option value="">Selecione a equipe</option>
+        <option value="igreja">Igreja</option>
+        <option value="atalaia">Atalaia</option>
+        <option value="valentes">Valentes</option>
+        <option value="despertar">Despertar</option>
+        <option value="thunder">Thunder</option>
+        <option value="flame">Flame</option>
+      </select>
+      <input name="vendedor" class="border p-2 rounded" placeholder="Quem vendeu?" required>
+      <select name="item_pedido" class="border p-2 rounded" required>
+        <option value="">Selecione o tipo do hamburguer</option>
+        <option value="hamburguer">Hamburguer</option>
+      </select>
+      <input name="quantidade" type="number" min="1" class="border p-2 rounded" placeholder="Quantidade de hamburgueres"
+        required>
+      <input name="descricao" class="border p-2 rounded" placeholder="Quantos são especiais e o que retira">
+      <input name="hora_retirada" type="time" class="border p-2 rounded" required>
+      <select name="delivery" class="border p-2 rounded" required>
+        <option value="">Selecione se é para entrega</option>
+        <option value="sim">Sim</option>
+        <option value="nao">Não</option>
+      </select>
+      <select name="metodo_pagamento" class="border p-2 rounded col-span-2 md:col-span-1" required>
+        <option value="">Método de Pagamento</option>
+        <option value="dinheiro">Dinheiro</option>
+        <option value="pix">PIX</option>
+        <option value="cartao">Cartão</option>
+      </select>
+      <input name="troco_para" type="number" step="0.01" class="border p-2 rounded col-span-2 md:col-span-1"
+        placeholder="Troco para (se dinheiro)">
+      <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white rounded p-2 col-span-2">Criar
+        Pedido</button>
+    </form>
+
+    <form id="form-importar" enctype="multipart/form-data" class="flex items-center space-x-2 mt-4">
+      <button type="button" onclick="mostrarCampoUpload()"
+        class="bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded">📥 Importar Pedidos</button>
+      <div id="area-upload" class="hidden flex items-center space-x-2">
+        <input type="file" name="arquivo" accept=".xlsx" class="text-sm p-1 border rounded" required>
+        <button type="submit" class="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded"
+          id="botao-enviar">Enviar</button>
+      </div>
+    </form>
+  </div>
+
+  <table class="min-w-full bg-white rounded shadow">
+    <thead>
+      <tr>
+        <th class="px-4 py-2 border">Selecionar</th>
+        <th class="px-4 py-2 border">ID</th>
+        <th class="px-4 py-2 border">Nome</th>
+        <th class="px-4 py-2 border">QTD</th>
+        <th class="px-4 py-2 border">Item</th>
+        <th class="px-4 py-2 border">Descrição</th>
+        <th class="px-4 py-2 border">Vendedor</th>
+        <th class="px-4 py-2 border">Delivery</th>
+        <th class="px-4 py-2 border">Hora entrega</th>
+        <th class="px-4 py-2 border">Preço</th>
+        <th class="px-4 py-2 border">Pago</th>
+        <th class="px-4 py-2 border">Status</th>
+        <th class="px-4 py-2 border">Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabela-pedidos"></tbody>
+  </table>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+
+</html>

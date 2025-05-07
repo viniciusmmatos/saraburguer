@@ -1,0 +1,5 @@
+node modules/
+upload/
+*.xlsx
+*.log
+.env
