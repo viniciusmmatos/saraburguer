@@ -10,11 +10,19 @@
     body {
       font-family: Arial, sans-serif;
     }
+    @keyframes fade-in {
+      from{ opacity: 0; transform: translateY(-10px);}
+      to{ opacity: 1; transform: translateY(0);}
+    }
+    .animate-fade-in {
+      animation: fade-in 0.3s ease-out;
+    }
   </style>
 </head>
 
 <body class="bg-gray-50 p-8">
   <h1 class="text-4xl font-bold mb-7">Painel de gestão dos pedidos | SARABURGUER 🍔🧑🏻‍🍳</h1>
+  <!-- Botões superiores -->
   <div class="flex justify-between items-center mb-6">
     <div class="flex space-x-4">
       <button onclick="alterarFormulario()" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded">
@@ -38,7 +46,7 @@
       🍳 Painel da Cozinha
     </a>
   </div>
-
+<!-- Formulario de novo pedido -->
   <div id="bloco-formulario" class="mb-6 bg-white p-4 rounded shadow hidden">
     <h2 class="text-xl font-bold mb-4">Novo Pedido</h2>
     <form id="form-novo-pedido" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -90,7 +98,36 @@
       </div>
     </form>
   </div>
-
+  <!--Notificação pedido pronto-->
+  <div id="notificacao" class="fixed top-5 right-5 z-50 hidden">
+    <div class ="bg-white border border-blue-300 border-blue-300 rounded-lg p-4 shadow-lg flex items-start space-x-3">
+      <div class="text-green-500 mt-1">
+        ✅
+      </div>
+      <div class="block font-semibold">
+        <strong class="block font-semibold">Notificação</strong>
+          <br><span class="texto-notificacao">Novo pedido criado!</span>
+      </div>
+      <button onclick="fecharNotificacao()" class="ml-4 text-gray-400 hover:text-gray-600">&times;</button>
+    </div>
+  </div>
+  <!-- filtro-->
+   <div>
+      <input id="Filtro-nome" placeholder="Filtrar por nome" class="border p-1 rounded">
+        <select id="filtro-status" class="border p-2 rounded">
+          <option value="">Todos os status</option>
+          <option value="em_preparo">Em preparo</option>
+          <option value="Pronto">Pronto</option>
+          <option value="em_transito">Em Transito</option>
+          <option value="entregue">Entregue</option>
+        </select>
+        <select id="filtro-delivery" class="border p-2 rounded">
+          <option value="">Delivery</option>
+          <option value="sim">Sim</option>
+          <option value="nao">Não</option>
+        </select>
+   </div>
+  <!-- parte superior da tabela -->
   <table class="min-w-full bg-white rounded shadow">
     <thead>
       <tr>

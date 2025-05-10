@@ -11,7 +11,7 @@ const server = http.createServer(app);
 const io = socketIo(server);
 const fs = require('fs');
 const { utils, writeFile, write } = xlsx;
-const PDFdocument = require('pdfkit')
+const PDFdocument = require('pdfkit');
 
 app.use(cors());
 app.use(express.json());
@@ -42,6 +42,13 @@ app.post('/import', upload.single('arquivo'), (req, res) => {
         data.forEach((linha, index) => {
             const quantidade = parseInt(linha.quantidade) || 1;
             const precoTotal = quantidade * precoUnitario;
+            let horaRetirada = linha.hora_retirada || '';
+            if(typeof horaRetirada === 'number') {
+                const date = new Date (Math.round((horaRetirada - 25569) * 86400 * 1000));
+                const horas = String(date.getUTCHours()).padStart(2,'0');
+                const minutos = String(date.getUTCMinutes()).padStart(2,'0');
+                horaRetirada = `${horas}:${minutos}`;
+            }
             pedidos.push({
                 id: pedidoId++,
                 nome_cliente: linha.nome_cliente || 'Desconhecido',
@@ -49,12 +56,14 @@ app.post('/import', upload.single('arquivo'), (req, res) => {
                 endereco: linha.endereco || '',
                 equipe_vendedor: linha.equipe_vendedor || 'Igreja',
                 vendedor: linha.vendedor || 'Igreja',
-                item_pedido: linha.item_pedido || '',
+                item_pedido: linha.item_pedido || 'hamburguer',
                 descricao: linha.descricao || 'Todos completos',
                 quantidade: quantidade,
-                hora_retirada: linha.hora_retirada || '',
+                hora_retirada: horaRetirada,
                 delivery: linha.delivery || '',
                 preco: precoTotal,
+                metodo_pagamento: linha.metodo_pagamento || '',
+                pago: linha.pago || false,
                 status: linha.status || 'em_preparo'
             });
         });
@@ -118,6 +127,7 @@ app.post('/pedidos', (req, res) => {
     pedidos.push(novoPedido);
     salvarBackup();
     io.emit('pedidos_atualizados', pedidos);
+    io.emit('notificacao_novo_pedido', {mensagem: 'novo pedido adicionado!'})
     res.json(novoPedido);
 })
 

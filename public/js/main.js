@@ -5,30 +5,30 @@ let precoUnitario = parseFloat(prompt("Informe o valor unitário do hamburguer:"
 
 // Exibe o campo de upload dento do forms + novo pedido
 function mostrarCampoUpload() {
-    document.getElementById('area-upload').classList.remove('hidden');
+  document.getElementById('area-upload').classList.remove('hidden');
 }
 // Recebe os dados de XLSX e converte em JSON para subir na tabela
 document.getElementById('form-importar').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const data = new FormData(form);
+  e.preventDefault();
+  const form = e.target;
+  const data = new FormData(form);
 
-    const resp = await fetch(`/import?preco_unitario=${precoUnitario}`, {
-        method: 'POST',
-        body: data
-    });
+  const resp = await fetch(`/import?preco_unitario=${precoUnitario}`, {
+    method: 'POST',
+    body: data
+  });
 
-    alert(resp.ok ? '✅ Pedidos importados com sucesso!' : '❌ Erro ao importar pedidos.');
-    document.getElementById('area-upload').classList.add('hidden');
-    form.reset();
+  alert(resp.ok ? '✅ Pedidos importados com sucesso!' : '❌ Erro ao importar pedidos.');
+  document.getElementById('area-upload').classList.add('hidden');
+  form.reset();
 });
 
 //Cria a tabela com base nos novos pedidos adicionados tanto manual quanto em massa (xlsx)
 function renderizarTabela(pedidos) {
-    tabela.innerHTML = '';
-    pedidos.forEach(pedido => {
-        const linha = document.createElement('tr');
-        linha.innerHTML = `
+  tabela.innerHTML = '';
+  pedidos.forEach(pedido => {
+    const linha = document.createElement('tr');
+    linha.innerHTML = `
           <td class="px-4 py-2 text-center"><input type="checkbox" class="selecionar-pedido" value="${pedido.id}"></td>
           <td class="px-4 py-2">#${pedido.id}</td>
           <td class="px-4 py-2">${pedido.nome_cliente}</td>
@@ -52,159 +52,210 @@ function renderizarTabela(pedidos) {
             <button onclick="imprimirEtiqueta(${pedido.id})" class="bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2 rounded text-sm">🖨️</button>
             <button onclick="deletarPedido(${pedido.id})" class="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded text-sm">🗑️</button>
             <button onclick="marcarComoPago(${pedido.id})" class="bg-green-600 hover:bg-green-700 text-white py-1 px-2 rounded text-sm">💰</button>`;
-        tabela.appendChild(linha);
-    });
+    tabela.appendChild(linha);
+
+    // filtro
+    //const nomeFiltro = document.getElementById('filtro-nome').value.toLowerCase();
+    //const statusFiltro = document.getElementById('filtro-status').value;
+    //const deliveryFiltro = document.getElementById('filtro-delivery').value;
+
+    //const pedidosFiltrados = pedidos.filter(p => {
+      //const nomeMatch = p.nome_cliente.toLowerCase().includes(nomeFiltro);
+      //const statusMatch = !statusFiltro || p.status === statusFiltro;
+      //const deliveryMatch = !DeliveryFiltro || p.delivery === deliveryFiltro;
+      //return nomeMatch && statusMatch && deliveryMatch;
+    //});
+
+    //tabela.innerHTML = '';
+    //pedidosFiltrados.forEach(pedido => {
+      //const linha = document.createElement('tr');
+      //linha.innerHTML = `...`;
+      //tabela.appendChild(linha);
+    //});
+  });
 }
+
+//let pedidosCache = [];
+//document.getElementById('Filtro-nome').addEventListener('input', () => renderizarTabela(pedidosCache));
+//document.getElementById('filtro-status').addEventListener('change', () => renderizarTabela(pedidosCache));
+//document.getElementById('filtro-delivery').addEventListener('change',()=> renderizarTabela(pedidosCache));
+
+//socket.on('pedidos_atualizados', (dados) => {
+  //pedidosCache = dados;
+  //renderizarTabela(pedidosCache);
+//})
 
 //gera a tabela
 socket.on('pedidos_atualizados', renderizarTabela);
 async function carregarPedidos() {
-    const resp = await fetch('/pedidos');
-    const dados = await resp.json();
-    renderizarTabela(dados);
+  const resp = await fetch('/pedidos');
+  const dados = await resp.json();
+  renderizarTabela(dados);
 }
 
 form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const quantidade = parseInt(formData.get("quantidade")) || 1;
-    const precoTotal = quantidade * precoUnitario;
+  e.preventDefault();
+  const formData = new FormData(form);
+  const quantidade = parseInt(formData.get("quantidade")) || 1;
+  const precoTotal = quantidade * precoUnitario;
+  const troco_para = parseFloat(formData.get("troco_para")) || 0;
+  const troco = troco_para - precoTotal; //Calculo troco
 
-    const novoPedido = {
-        nome_cliente: formData.get("nome_cliente"),
-        telefone: formData.get("telefone"),
-        endereco: formData.get("endereco"),
-        equipe_vendedor: formData.get("equipe_vendedor"),
-        vendedor: formData.get("vendedor"),
-        item_pedido: formData.get("item_pedido"),
-        descricao: formData.get("descricao"),
-        quantidade: quantidade,
-        hora_retirada: formData.get("hora_retirada"),
-        delivery: formData.get("delivery"),
-        metodo_pagamento: formData.get("metodo_pagamento"),
-        troco_para: formData.get("troco_para"),
-        preco: precoTotal
-    };
+  const novoPedido = {
+    nome_cliente: formData.get("nome_cliente"),
+    telefone: formData.get("telefone"),
+    endereco: formData.get("endereco"),
+    equipe_vendedor: formData.get("equipe_vendedor"),
+    vendedor: formData.get("vendedor"),
+    item_pedido: formData.get("item_pedido"),
+    descricao: formData.get("descricao"),
+    quantidade: quantidade,
+    hora_retirada: formData.get("hora_retirada"),
+    delivery: formData.get("delivery"),
+    metodo_pagamento: formData.get("metodo_pagamento"),
+    troco_para: troco_para,
+    preco: precoTotal,
+    troco: troco
+  };
 
-    await fetch('/pedidos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(novoPedido)
-    });
-    form.reset();
+  await fetch('/pedidos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(novoPedido)
+  });
+  form.reset();
+  mostrarNotificacao();
 });
 
 //alteração de status faz interação com o INDEX2 (tela de pedidos prontos e em preparo)
 async function alterarStatus(id, novoStatus) {
-    await fetch(`/pedidos/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: novoStatus })
-    });
+  await fetch(`/pedidos/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: novoStatus })
+  });
 }
 
 // Deleta um pedido
 async function deletarPedido(id) {
-    if (confirm('Deseja deletar este pedido?')) {
-        await fetch(`/pedidos/${id}`, { method: 'DELETE' });
-    }
+  if (confirm('Deseja deletar este pedido?')) {
+    await fetch(`/pedidos/${id}`, { method: 'DELETE' });
+  }
 }
 
 //etiquetas começam aqui
 function gerarEtiqueta(pedido) {
-    const janela = window.open('', '', 'width=380,height=500');
-    janela.document.write(`<html>
+  const janela = window.open('', '', 'width=380,height=600');
+  const valorTotal = (pedido.preco || 0).toFixed(2);
+  const trocoTexto = (pedido.metodo_pagamento === 'dinheiro' && pedido.troco) ?
+    `<div><strong>Troco:</strong> R$: ${parseFloat(pedido.troco).toFixed(2)}</div>` : '';
+
+  janela.document.write(`<html>
         <head>
           <style>
-            body {
-              font-family: Arial, sans-serif;
-              padding: 20px;
+            body{
+              font-family:monospace;
+              padding: 10px;
             }
-            table {
-              width: 100%;
-              border-collapse: collapse;
+            .center{
+                text-align: center;
             }
-            th {
-              text-align: left;
-              font-size: 16px;
-              background-color: #f3f3f3;
-              padding: 8px;
-              border-bottom: 1px solid #ccc;
+            .bold{
+                font-weight: bold;
             }
-            td {
-              padding: 6px 8px;
-              border-bottom: 1px solid #eee;
+            .separator {
+                border-top: 1px dashed #000;
+                margin: 10px 0;
             }
-            .titulo {
-              font-size: 20px;
-              font-weight: bold;
-              margin-bottom: 10px;
+            .qrcode {
+                margin-top: 10px;
+                text-align: center;
+            }
+            .qrcode img {
+                width: 150px;
+                height: 150px;
             }
           </style>
         </head>
         <body>
-          <div class="titulo">🍔 Pedido #${pedido.id}</div>
-          <table>
-            <tr><th>Equipe</th><td>${pedido.equipe_vendedor}</td></tr>
-            <tr><th>Vendedor</th><td>${pedido.vendedor}</td></tr>
-            <tr><th>Cliente</th><td>${pedido.nome_cliente}</td></tr>
-            <tr><th>Telefone</th><td>${pedido.telefone}</td></tr>
-            <tr><th>Endereço</th><td>${pedido.endereco}</td></tr>
-            <tr><th>Item</th><td>${pedido.quantidade}x ${pedido.item_pedido}</td></tr>
-            <tr><th>Descrição</th><td>${pedido.descricao}</td></tr>
-            <tr><th>Entrega</th><td>${pedido.delivery}</td></tr>
-            <tr><th>Hora retirada</th><td>${pedido.hora_retirada}</td></tr>
-            <tr><th>Pagamento</th><td>${pedido.metodo_pagamento}</td></tr>${pedido.metodo_pagamento === 'dinheiro' && pedido.troco_para ? `<tr><th>Troco para</th><td>R$ ${pedido.troco_para}</td></tr><tr><th>Troco a devolver</th><td>R$ ${(pedido.troco_para - pedido.preco).toFixed(2)}</td></tr>` : ''}
-            <tr><th>Valor total pedido</th><td>R$ ${pedido.preco}</td></tr>
-          </table>
+            <div class="center bold">Sara Almirante</div>
+            <div class="center">R. José Milek Filho,297</div>
+            <div class="center">Campina do Arruda - Alm. Tamandaré/PR</div>
+
+            <div class="separator"></div>
+
+            <div class="bold">Pedido #${pedido.id}</div>
+            <div class="bold">Horario retirada / entrega: ${pedido.hora_retirada}</div>
+            <div><strong>Delivery: ${pedido.delivery}</strong></div>
+            <br>
+            <div><strong>${pedido.quantidade} x</strong> ${pedido.item_pedido}</div>
+            <div>${pedido.descricao || ''}</div>
+            <br>
+
+            <div class="bold">Valor total: R$ ${valorTotal}</div>
+            ${trocoTexto}
+            <div>Mtd pagamento: ${pedido.metodo_pagamento}</div>
+            <div>Pago: ${pedido.pago ? 'Sim' : 'Não'} </div>
+            <div class="separator"></div>
+            <div class="center bold">--Dados para entrega--</div>
+            <br>
+            <div>Cliente:${pedido.nome_cliente}</div>
+            <div>Vendedor:${pedido.vendedor} EQUIPE: ${pedido.equipe_vendedor}</div>
+            <div>Endereço:${pedido.endereco}</div>
+            <div>Telefone:${pedido.telefone}</div>
+
+            <div class="separator"></div>
+            <div class="center bold">Vai pagar no dinheiro ou Debito? Faz no PIX! 💗</div>
+            <div class="qrcode">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?data=COLOCAR_QR_CODE_COIPIA_E_COLA_OU_GERARPIX.COM.BR&size=150x150" alt="QR code pix">
+            </div>
           <script>
             window.print();
             window.onafterprint = function() { window.close(); };
           <\/script>
         </body>
-        </html>
-      `);
-    janela.document.close();
+        </html>`);
+  janela.document.close();
 }
 
 async function imprimirEtiqueta(id) {
-    const resp = await fetch('/pedidos');
-    const pedidos = await resp.json();
-    const pedido = pedidos.find(p => p.id === id);
-    if (pedido) gerarEtiqueta(pedido);
+  const resp = await fetch('/pedidos');
+  const pedidos = await resp.json();
+  const pedido = pedidos.find(p => p.id === id);
+  if (pedido) gerarEtiqueta(pedido);
 }
 
 function imprimirSelecionados() {
-    const selecionados = Array.from(document.querySelectorAll('.selecionar-pedido:checked')).map(cb => parseInt(cb.value));
-    fetch('/pedidos').then(res => res.json()).then(pedidos => {
-        selecionados.forEach(id => {
-            const pedido = pedidos.find(p => p.id === id);
-            if (pedido) gerarEtiqueta(pedido);
-        });
+  const selecionados = Array.from(document.querySelectorAll('.selecionar-pedido:checked')).map(cb => parseInt(cb.value));
+  fetch('/pedidos').then(res => res.json()).then(pedidos => {
+    selecionados.forEach(id => {
+      const pedido = pedidos.find(p => p.id === id);
+      if (pedido) gerarEtiqueta(pedido);
     });
+  });
 }
 
 function imprimirTodosEmPreparo() {
-    fetch('/pedidos').then(res => res.json()).then(pedidos => {
-        pedidos.filter(p => p.status === 'em_preparo').forEach(p => gerarEtiqueta(p));
-    });
+  fetch('/pedidos').then(res => res.json()).then(pedidos => {
+    pedidos.filter(p => p.status === 'em_preparo').forEach(p => gerarEtiqueta(p));
+  });
 }
 // fim etiquetas
 
 //tag pago
 async function marcarComoPago(id) {
-    const resp = await fetch('/pedidos');
-    const pedidos = await resp.json();
-    const pedido = pedidos.find(p => p.id === id);
-    if (!pedido) return;
+  const resp = await fetch('/pedidos');
+  const pedidos = await resp.json();
+  const pedido = pedidos.find(p => p.id === id);
+  if (!pedido) return;
 
-    const novoPago = !pedido.pago;
+  const novoPago = !pedido.pago;
 
-    await fetch(`/pedidos/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pago: !pedido.pago })
-    });
+  await fetch(`/pedidos/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pago: !pedido.pago })
+  });
 }
 
 
@@ -212,10 +263,31 @@ carregarPedidos();
 
 //mostra o formulario
 function alterarFormulario() {
-    document.getElementById('bloco-formulario').classList.toggle('hidden');
+  document.getElementById('bloco-formulario').classList.toggle('hidden');
 }
+
+//notificação novo pedido
+function mostrarNotificacao(mensagem = 'Novo pedido criado!') {
+  const box = document.getElementById('notificacao');
+  box.querySelector('.texto-notificacao').innerText = mensagem;
+  box.classList.remove('hidden');
+  box.classList.add('animate-fade-in');
+
+  setTimeout(() => {
+    box.classList.add('hidden');
+  }, 4000);
+}
+
+function fecharNotificacao() {
+  const box = document.getElementById('notificacao');
+  box.classList.add('hidden');
+}
+
+socket.on('notificacao_novo_pedido', (dados) => {
+  mostrarNotificacao(dados.mensagem);
+})
 
 //backup em formato xlsx
 function exportarBackup() {
-    window.location.href = '/exportar';
+  window.location.href = '/exportar';
 }
