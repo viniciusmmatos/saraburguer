@@ -1,4 +1,4 @@
-# 🍔 SaraBurguer - Sistema de Gestão de Pedidos
+# 🧾 SaraBurguer - Sistema de Gestão de Pedidos
 
 Aplicativo web para gestão de pedidos de hamburgueria (desenvolvido para atuação no evento da igreja Sara Nossa Terra de Almirante Tamandaré), com impressão de etiquetas, painel de visualização e recursos em tempo real. Desenvolvido com Node.js, Express, WebSocket e TailwindCSS.
 
@@ -6,112 +6,106 @@ Aplicativo web para gestão de pedidos de hamburgueria (desenvolvido para atuaç
 
 ## 🚀 Funcionalidades
 
-- Cadastro de pedidos via formulário
-- Importação de pedidos por planilha `.xlsx`
-- Impressão de etiquetas (individual, em lote, em preparo)
-- Visualização de pedidos em painel de cozinha (index2)
-- Atualização de status (em preparo, pronto, em trânsito, entregue)
-- Marcar pagamento e método (dinheiro, pix, cartão)
-- Troco automático na etiqueta se necessário
-- Backup automático a cada 2 minutos
-- Exportação de pedidos em Excel com total arrecadado
+- 📥 **Importação de pedidos via Excel (.xlsx)**
+- ➕ **Cadastro manual de novos pedidos**
+- 🖨️ **Impressão individual ou em lote de etiquetas**
+- 🔁 **Atualização em tempo real (WebSocket)**
+- 📦 **Backup automático a cada 2 minutos**
+- 💰 **Controle de pagamento (pago / não pago)**
+- 💳 **Método de pagamento (PIX, débito, dinheiro)**
+- 💵 **Campo de troco automático se pagamento em dinheiro**
+- 🧾 **Etiqueta personalizada estilo cupom fiscal com QRCode PIX**
+- 📊 **Tela separada (index2.html) com pedidos em preparo e prontos**
 
 ---
 
-## 📁 Estrutura
+## 🧠 Tecnologias utilizadas
 
-```
-📦 saraBurguer
-┣ 📁 public
-┃ ┣ 📄 index.html         # Tela de controle de pedidos
-┃ ┣ 📄 index2.html        # Painel de visualização de pedidos
-┣ 📄 server.js            # Servidor Express + WebSocket + lógica do backend
-┣ 📄 README.md
-```
+- **Node.js** + **Express.js**
+- **Socket.io** para comunicação em tempo real
+- **TailwindCSS** para estilização
+- **Multer** + **xlsx** para upload e leitura de planilhas
+- **HTML + JS puro** no front-end
+- **Backup automático** via `xlsx.writeFile()`
 
 ---
 
-## 📦 Instalação
-
-### Pré-requisitos:
-- Node.js instalado
-- Editor como VS Code (opcional)
-
-### Instalar dependências:
+## 📁 Estrutura do Projeto
 
 ```bash
-npm install express socket.io multer xlsx cors
+📁 saraBurguer
+│
+├── public/
+│   ├── index.html
+│   ├── index2.html
+│   ├── main.js
+│   └── styles.css (opcional)
+│
+├── backup_automatico.xlsx
+├── server.js
+├── package.json
+└── README.md
 ```
 
 ---
 
-## ▶️ Como rodar o sistema
+## 🔧 Como rodar o projeto
 
+1. **Instale as dependências**:
+```bash
+npm install
+```
+
+2. **Inicie o servidor**:
 ```bash
 node server.js
 ```
 
-Depois acesse no navegador:
-
+3. **Acesse pelo navegador**:
 ```
 http://localhost:3000
 ```
 
 ---
 
-## 💾 Backup automático
+## 📤 Importação via Planilha
 
-- Gera `backup_automatico.xlsx` a cada 2 minutos
-- Gera backup também a cada novo pedido
-- Exportação manual disponível no menu lateral
+A planilha deve conter os seguintes campos:
 
----
-
-## 📥 Importação de pedidos via planilha
-
-Sua planilha `.xlsx` deve conter as colunas:
-
-```text
-nome_cliente | telefone | endereco | equipe_vendedor | vendedor
-item_pedido | descricao | quantidade | hora_retirada | delivery
-```
-
-Durante a importação, o sistema perguntará o preço unitário a ser aplicado a todos os pedidos.
-
----
-
-## 🖨️ Etiqueta de pedido
-
-Inclui os seguintes dados:
-- Número do pedido
-- Cliente, telefone e endereço
-- Item e descrição
-- Hora de retirada
-- Equipe e vendedor
-- Método de pagamento
-- Troco a devolver (se for em dinheiro)
+| Campo             | Tipo     | Observação                         |
+|------------------|----------|------------------------------------|
+| nome_cliente      | texto    | Nome do cliente                    |
+| telefone          | texto    | Telefone do cliente                |
+| endereco          | texto    | Endereço para entrega              |
+| equipe_vendedor   | texto    | Ex: Igreja, Atalaia, Flame...      |
+| vendedor          | texto    | Nome do vendedor                   |
+| item_pedido       | texto    | Ex: Hamburguer                     |
+| descricao         | texto    | Informações adicionais             |
+| quantidade        | número   | Quantidade de itens                |
+| hora_retirada     | hora     | Formato HH:MM                      |
+| delivery          | texto    | sim / nao                          |
+| metodo_pagamento  | texto    | dinheiro / debito / pix            |
+| troco_para        | número   | Se pagamento for em dinheiro       |
+| pago              | booleano | true / false                       |
+| status            | texto    | em_preparo / pronto / entregue     |
 
 ---
 
-## 📊 Relatório de exportação
+## 🛟 Backup
 
-Ao exportar os pedidos via botão, é gerado um arquivo `.xlsx` contendo:
-
-- Todos os pedidos registrados
-
----
-
-## 💡 Tecnologias utilizadas
-
-- Node.js
-- Express.js
-- Socket.io
-- TailwindCSS
-- XLSX
-- HTML + JavaScript (Vanilla)
+- Backup automático salvo a cada 2 minutos no arquivo `backup_automatico.xlsx`
+- Pode ser exportado manualmente via botão "Exportar pedidos"
 
 ---
 
-## 🔐 Licença
+## 📌 Notificações
+
+- Notificação visual aparece no topo a cada novo pedido criado manualmente
+- Também exibe notificação para pedidos importados via Excel
+
+---
+
+## ✅ Licença
 
 Projeto acadêmico para fins educativos e sem fins lucrativos.
+Desenvolvido com ❤️ por [Vinícius Matos](https://github.com/viniciusmmatos)
