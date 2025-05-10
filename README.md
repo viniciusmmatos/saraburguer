@@ -16,7 +16,7 @@ Aplicativo web para gestão de pedidos de hamburgueria (desenvolvido para atuaç
 - 💵 **Campo de troco automático se pagamento em dinheiro**
 - 🧾 **Etiqueta personalizada estilo cupom fiscal com QRCode PIX**
 - 📊 **Tela separada (index2.html) com pedidos em preparo e prontos**
-
+- 📄 **Emissão de relatorio automativo em PDF (Pdfmaker)**
 ---
 
 ## 🧠 Tecnologias utilizadas
@@ -27,6 +27,7 @@ Aplicativo web para gestão de pedidos de hamburgueria (desenvolvido para atuaç
 - **Multer** + **xlsx** para upload e leitura de planilhas
 - **HTML + JS puro** no front-end
 - **Backup automático** via `xlsx.writeFile()`
+- **Pdfmaker** para geração de relatorios
 
 ---
 
@@ -41,8 +42,10 @@ Aplicativo web para gestão de pedidos de hamburgueria (desenvolvido para atuaç
 │   ├── main.js
 │   └── styles.css (opcional)
 │
-├── backup_automatico.xlsx
+├── fonts/
+│   ├──Roboto/
 ├── server.js
+├── iniciar_servidor.bat
 ├── package.json
 └── README.md
 ```
@@ -66,6 +69,10 @@ node server.js
 http://localhost:3000
 ```
 
+4. **Inicializador via arquivo .bat**
+```
+iniciar_servidor.bat
+```
 ---
 
 ## 📤 Importação via Planilha
@@ -73,7 +80,7 @@ http://localhost:3000
 A planilha deve conter os seguintes campos:
 
 | Campo             | Tipo     | Observação                         |
-|------------------|----------|------------------------------------|
+|-------------------|----------|------------------------------------|
 | nome_cliente      | texto    | Nome do cliente                    |
 | telefone          | texto    | Telefone do cliente                |
 | endereco          | texto    | Endereço para entrega              |
@@ -93,7 +100,7 @@ A planilha deve conter os seguintes campos:
 
 ## 🛟 Backup
 
-- Backup automático salvo a cada 2 minutos no arquivo `backup_automatico.xlsx`
+- Backup automático salvo a cada 2 minutos no arquivo `backup_automatico.xlsx` dentro da raiz.
 - Pode ser exportado manualmente via botão "Exportar pedidos"
 
 ---

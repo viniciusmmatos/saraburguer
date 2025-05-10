@@ -11,7 +11,8 @@ const server = http.createServer(app);
 const io = socketIo(server);
 const fs = require('fs');
 const { utils, writeFile, write } = xlsx;
-const PDFdocument = require('pdfkit');
+const PdfPrinter = require('pdfmake');
+const vfsFonts = require('pdfmake/build/vfs_fonts');
 
 app.use(cors());
 app.use(express.json());
@@ -43,10 +44,10 @@ app.post('/import', upload.single('arquivo'), (req, res) => {
             const quantidade = parseInt(linha.quantidade) || 1;
             const precoTotal = quantidade * precoUnitario;
             let horaRetirada = linha.hora_retirada || '';
-            if(typeof horaRetirada === 'number') {
-                const date = new Date (Math.round((horaRetirada - 25569) * 86400 * 1000));
-                const horas = String(date.getUTCHours()).padStart(2,'0');
-                const minutos = String(date.getUTCMinutes()).padStart(2,'0');
+            if (typeof horaRetirada === 'number') {
+                const date = new Date(Math.round((horaRetirada - 25569) * 86400 * 1000));
+                const horas = String(date.getUTCHours()).padStart(2, '0');
+                const minutos = String(date.getUTCMinutes()).padStart(2, '0');
                 horaRetirada = `${horas}:${minutos}`;
             }
             pedidos.push({
@@ -82,8 +83,8 @@ app.get('/exportar', (req, res) => {
     try {
         const exportarPedidos = pedidos.map(p => ({
             ...p,
-            pago: p.pago ? 'Sim' : 'Não' 
-          }));
+            pago: p.pago ? 'Sim' : 'Não'
+        }));
         const ws = utils.json_to_sheet(pedidos);
         const wb = utils.book_new();
         utils.book_append_sheet(wb, ws, 'Pedidos');
@@ -105,7 +106,7 @@ function salvarBackup() {
         const exportarPedidos = pedidos.map(p => ({
             ...p,
             pago: p.pago ? 'Sim' : 'Não'
-          }));
+        }));
         const ws = utils.json_to_sheet(pedidos);
         const wb = utils.book_new();
         utils.book_append_sheet(wb, ws, 'Pedidos');
@@ -127,7 +128,7 @@ app.post('/pedidos', (req, res) => {
     pedidos.push(novoPedido);
     salvarBackup();
     io.emit('pedidos_atualizados', pedidos);
-    io.emit('notificacao_novo_pedido', {mensagem: 'novo pedido adicionado!'})
+    io.emit('notificacao_novo_pedido', { mensagem: 'novo pedido adicionado!' })
     res.json(novoPedido);
 })
 
@@ -152,41 +153,155 @@ app.delete('/pedidos/:id', (req, res) => {
     res.json({ sucesso: true });
 });
 
-//exportar relatorio em PDF
-app.get('/exportar-pdf', (req, res) => {
-    try {
-        const doc = new PDFdocument();
-        const filename = `relatorio_pedidos.pdf`;
+const fonts = {
+  Roboto: {
+    normal: path.join(__dirname, 'fonts/Roboto-Regular.ttf'),
+    bold: path.join(__dirname, 'fonts/Roboto-Medium.ttf'),
+    italics: path.join(__dirname, 'fonts/Roboto-Italic.ttf'),
+    bolditalics: path.join(__dirname, 'fonts/Roboto-MediumItalic.ttf')
+  }
+};
 
-        res.setHeader('Content-disposition', `attachment; filename="${filename}"`);
-        res.setHeader('Content-type', 'application/pdf');
+const printer = new PdfPrinter(fonts);
 
-        doc.pipe(res);
+app.get('/exportar-pdf', async (req, res) => {
+  try {
+    // Cálculos de resumo
+    const resumo = {
+      totalPedidos: pedidos.length,
+      totalHamburgueres: pedidos.reduce((soma, p) => soma + (p.quantidade || 0), 0),
+      totalPago: pedidos.filter(p => p.pago).reduce((soma, p) => soma + (p.preco || 0), 0),
+      totalPendente: pedidos.filter(p => !p.pago).reduce((soma, p) => soma + (p.preco || 0), 0)
+    };
 
-        doc.fontSize(20).text('Relatorio de pedidos 🍔', { aling: 'center' });
-        doc.moveDown();
+    // Organização por equipe
+    const porEquipe = {};
+    let equipeTop = null;
+    let maiorQtd = 0;
+    let vendedorTop = '---';
 
-        pedidos.forEach(pedido =>{
-            doc.fontSize(12).text(`pedido #${pedido.id}`);
-            doc.text(`Cliente: ${pedido.nome_cliente}`);
-            doc.text(`Telefone: ${pedido.telefone}`);
-            doc.text(`Endereço: ${pedido.endereco}`);
-            doc.text(`Equipe: ${pedido.equipe_vendedor}`);
-            doc.text(`Vendedor: ${pedido.vendedor}`);
-            doc.text(`Item: ${pedido.item_pedido} x${pedido.quantidade}`);
-            doc.text(`Descrição: ${pedido.descricao}`);
-            doc.text(`Hora Retirada: ${pedido.hora_retirada}`);
-            doc.text(`Delivery: ${pedido.delivery}`);
-            doc.text(`Preço: R$ ${pedido.preco.toFixed(2)}`);
-            doc.text(`Status: ${pedido.status}`);
-            doc.moveDown();
-        });
+    for (const p of pedidos) {
+      const eq = p.equipe_vendedor || 'Outros';
+      if (!porEquipe[eq]) {
+        porEquipe[eq] = { quantidade: 0, valorPago: 0, valorPendente: 0, vendedores: {} };
+      }
+      porEquipe[eq].quantidade += p.quantidade;
+      porEquipe[eq].valorPago += p.pago ? p.preco : 0;
+      porEquipe[eq].valorPendente += !p.pago ? p.preco : 0;
 
-        doc.end();
-    } catch (err) {
-        console.error('Erro ao gerar PDF',err);
-        res.status(500).json({erro: 'Erro ao gerar relatorio em PDF'})
+      const vendedor = p.vendedor || 'Desconhecido';
+      porEquipe[eq].vendedores[vendedor] = (porEquipe[eq].vendedores[vendedor] || 0) + p.quantidade;
+
+      if (porEquipe[eq].quantidade > maiorQtd) {
+        maiorQtd = porEquipe[eq].quantidade;
+        equipeTop = eq;
+        vendedorTop = Object.entries(porEquipe[eq].vendedores).sort((a, b) => b[1] - a[1])[0][0];
+      }
     }
+
+    // Monta a tabela resumo por equipe
+    const tabelaResumo = [
+      ['Equipe', 'Qtd', 'Valor Pago', 'Valor Pendente'],
+      ...Object.entries(porEquipe).map(([equipe, dados]) => [
+        equipe,
+        dados.quantidade,
+        `R$ ${dados.valorPago.toFixed(2)}`,
+        `R$ ${dados.valorPendente.toFixed(2)}`
+      ])
+    ];
+
+    // Monta a tabela de pedidos
+    const tabelaPedidos = [
+      ['ID', 'Cliente', 'Equipe', 'Qtd', 'Valor', 'Pago'],
+      ...pedidos.map(p => [
+        `#${p.id}`,
+        p.nome_cliente,
+        p.equipe_vendedor,
+        p.quantidade.toString(),
+        `R$ ${p.preco.toFixed(2)}`,
+        p.pago ? 'Pago' : 'Pendente'
+      ])
+    ];
+
+    // Definição do conteúdo do PDF
+    const docDefinition = {
+      content: [
+        { text: 'Relatório Sara Almirante', style: 'header', alignment: 'center' },
+        { text: `Gerado em: ${new Date().toLocaleString()}`, style: 'small', alignment: 'center' },
+        { text: '\nVendas por Equipe', style: 'subheader' },
+        { table: { body: tabelaResumo }, layout: 'lightHorizontalLines' },
+        { text: `Equipe destaque: ${equipeTop}  |  Vendedor: ${vendedorTop}\n\n`, style: 'normal' },
+        { text: 'Extrato de Pedidos', style: 'subheader' },
+        { table: { body: tabelaPedidos }, layout: 'lightHorizontalLines' },
+        { text: '\nResumo Geral', style: 'subheader' },
+        {
+          ul: [
+            `Hamburgueres vendidos: ${resumo.totalHamburgueres}`,
+            `Pedidos realizados: ${resumo.totalPedidos}`,
+            `Faturamento total: R$ ${(resumo.totalPago + resumo.totalPendente).toFixed(2)}`
+          ]
+        }
+      ],
+      styles: {
+        header: { fontSize: 18, bold: true },
+        subheader: { fontSize: 14, bold: true, margin: [0, 10, 0, 4] },
+        normal: { fontSize: 12 },
+        small: { fontSize: 10, color: 'gray' }
+      },
+      defaultStyle: {
+        font: 'Roboto'
+      }
+    };
+
+    // Gerando PDF
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+    const chunks = [];
+
+    pdfDoc.on('data', chunk => chunks.push(chunk));
+    pdfDoc.on('end', () => {
+      const pdfBuffer = Buffer.concat(chunks);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline; filename=relatorio_saraburguer.pdf');
+      res.send(pdfBuffer);
+    });
+
+    pdfDoc.end();
+  } catch (err) {
+    console.error('Erro ao gerar PDF', err);
+    res.status(500).json({ erro: 'Erro ao gerar relatório em PDF' });
+  }
+});
+
+app.get('/teste-pdf', (req, res) => {
+    const PDFDocument = require('pdfkit');
+    const { table } = require('pdfkit-table');
+
+    const doc = new PDFDocument({ margin: 30, size: 'A4' });
+    const buffers = [];
+
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => {
+        const pdfData = Buffer.concat(buffers);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline; filename="teste.pdf"');
+        res.send(pdfData);
+    });
+
+    // Conteúdo simples
+    doc.fontSize(18).text('Teste de PDF com Tabela', { align: 'center' });
+
+    const exemploTabela = {
+        title: 'Exemplo de Tabela',
+        headers: ['Coluna 1', 'Coluna 2'],
+        rows: [
+            ['Valor 1', 'Valor 2'],
+            ['Outro 1', 'Outro 2']
+        ]
+    };
+
+    doc.table(exemploTabela, { width: 500 });
+
+    doc.end();
 });
 
 //temporizador para backup automatico 2 em 2 minutos

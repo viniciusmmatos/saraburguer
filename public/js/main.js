@@ -17,13 +17,15 @@ document.getElementById('form-importar').addEventListener('submit', async (e) =>
     method: 'POST',
     body: data
   });
-
+  
   alert(resp.ok ? '✅ Pedidos importados com sucesso!' : '❌ Erro ao importar pedidos.');
   document.getElementById('area-upload').classList.add('hidden');
   form.reset();
 });
 
 //Cria a tabela com base nos novos pedidos adicionados tanto manual quanto em massa (xlsx)
+let pedidosCache = [];
+
 function renderizarTabela(pedidos) {
   tabela.innerHTML = '';
   pedidos.forEach(pedido => {
@@ -46,44 +48,42 @@ function renderizarTabela(pedidos) {
               <option value="pronto" ${pedido.status === 'pronto' ? 'selected' : ''}>Pronto</option>
               <option value="entregue" ${pedido.status === 'entregue' ? 'selected' : ''}>Entregue</option>
               <option value="em_transito" ${pedido.status === 'em_transito' ? 'selected' : ''}>Em Trânsito</option>
-            </select>
-          </td>
+              </select>
+              </td>
           <td class="px-4 py-2 text-center">
-            <button onclick="imprimirEtiqueta(${pedido.id})" class="bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2 rounded text-sm">🖨️</button>
+          <button onclick="imprimirEtiqueta(${pedido.id})" class="bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2 rounded text-sm">🖨️</button>
             <button onclick="deletarPedido(${pedido.id})" class="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded text-sm">🗑️</button>
             <button onclick="marcarComoPago(${pedido.id})" class="bg-green-600 hover:bg-green-700 text-white py-1 px-2 rounded text-sm">💰</button>`;
     tabela.appendChild(linha);
-
-    // filtro
-    //const nomeFiltro = document.getElementById('filtro-nome').value.toLowerCase();
-    //const statusFiltro = document.getElementById('filtro-status').value;
-    //const deliveryFiltro = document.getElementById('filtro-delivery').value;
-
-    //const pedidosFiltrados = pedidos.filter(p => {
-      //const nomeMatch = p.nome_cliente.toLowerCase().includes(nomeFiltro);
-      //const statusMatch = !statusFiltro || p.status === statusFiltro;
-      //const deliveryMatch = !DeliveryFiltro || p.delivery === deliveryFiltro;
-      //return nomeMatch && statusMatch && deliveryMatch;
-    //});
-
-    //tabela.innerHTML = '';
-    //pedidosFiltrados.forEach(pedido => {
-      //const linha = document.createElement('tr');
-      //linha.innerHTML = `...`;
-      //tabela.appendChild(linha);
-    //});
+    
   });
 }
+// filtro
+function aplicarFiltro(){
 
-//let pedidosCache = [];
-//document.getElementById('Filtro-nome').addEventListener('input', () => renderizarTabela(pedidosCache));
-//document.getElementById('filtro-status').addEventListener('change', () => renderizarTabela(pedidosCache));
-//document.getElementById('filtro-delivery').addEventListener('change',()=> renderizarTabela(pedidosCache));
+  const nomeFiltro = document.getElementById('filtro-nome').value.toLowerCase();
+  const statusFiltro = document.getElementById('filtro-status').value;
+  const deliveryFiltro = document.getElementById('filtro-delivery').value;
+  
+  const pedidosFiltrados = pedidosCache.filter(p => {
+    const nomeMatch = p.nome_cliente.toLowerCase().includes(nomeFiltro);
+    const statusMatch = !statusFiltro || p.status === statusFiltro;
+    const deliveryMatch = !deliveryFiltro || p.delivery === deliveryFiltro;
+    return nomeMatch && statusMatch && deliveryMatch;
+  });
+  
+  renderizarTabela(pedidosFiltrados)
 
-//socket.on('pedidos_atualizados', (dados) => {
-  //pedidosCache = dados;
-  //renderizarTabela(pedidosCache);
-//})
+}
+
+document.getElementById('filtro-nome').addEventListener('input', aplicarFiltro);
+document.getElementById('filtro-status').addEventListener('change', aplicarFiltro);
+document.getElementById('filtro-delivery').addEventListener('change',aplicarFiltro);
+
+socket.on('pedidos_atualizados', (dados) => {
+  pedidosCache = dados;
+  aplicarFiltro();
+})
 
 //gera a tabela
 socket.on('pedidos_atualizados', renderizarTabela);
