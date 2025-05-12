@@ -6,20 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestão de Pedidos</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-    }
-    @keyframes fade-in {
-      from{ opacity: 0; transform: translateY(-10px);}
-      to{ opacity: 1; transform: translateY(0);}
-    }
-    .animate-fade-in {
-      animation: fade-in 0.3s ease-out;
-    }
-  </style>
+  <style src="/public/styles/styles.css"></style>
 </head>
-
 <body class="bg-gray-50 p-8">
   <h1 class="text-4xl font-bold mb-7">Painel de gestão dos pedidos | SARABURGUER 🍔🧑🏻‍🍳</h1>
   <!-- Botões superiores -->
@@ -39,7 +27,7 @@
       </button>
       <a href="/exportar-pdf" target="_blank" class="bg-blue-600 hover:bg-pink-700 text-white py-2 px-4 rounded">
         📄 Baixar Relatório PDF
-      </a> <!--em implementação-->
+      </a>
     </div>
 
     <a href="index2.html" target="_blank" class="ml-auto bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">

@@ -28,24 +28,26 @@ Aplicativo web para gestão de pedidos de hamburgueria (desenvolvido para atuaç
 - **HTML + JS puro** no front-end
 - **Backup automático** via `xlsx.writeFile()`
 - **Pdfmaker** para geração de relatorios
+- **Arquitetura com Controllers**
+- **Multer** (upload de arquivos)
 
 ---
 
 ## 📁 Estrutura do Projeto
 
 ```bash
-📁 saraBurguer
-│
+├── controllers/
+│ ├── pedidosController.js
+│ ├── exportController.js
+│ └── backupController.js
 ├── public/
-│   ├── index.html
-│   ├── index2.html
-│   ├── main.js
-│   └── styles.css (opcional)
-│
-├── fonts/
-│   ├──Roboto/
+│ ├── index.html
+│ ├── index2.html
+│ └── main.js
+├── fonts/ (para PDF)
+│ └── Roboto-*.ttf
+├── upload/ (planilhas temporárias)
 ├── server.js
-├── iniciar_servidor.bat
 ├── package.json
 └── README.md
 ```
@@ -66,7 +68,9 @@ node server.js
 
 3. **Acesse pelo navegador**:
 ```
-http://localhost:3000
+http://localhost:3000 – Tela principal de pedidos
+
+http://localhost:3000/index2.html – Painel da cozinha
 ```
 
 4. **Inicializador via arquivo .bat**
@@ -96,6 +100,8 @@ A planilha deve conter os seguintes campos:
 | pago              | booleano | true / false                       |
 | status            | texto    | em_preparo / pronto / entregue     |
 
+Campos ausentes serão preenchidos com valores padrão.
+
 ---
 
 ## 🛟 Backup
@@ -111,6 +117,12 @@ A planilha deve conter os seguintes campos:
 - Também exibe notificação para pedidos importados via Excel
 
 ---
+
+✅ Atualizações Finais
+- Projeto modularizado em controllers
+- Novo layout de relatório em PDF
+- Corrigido bug do horário de retirada na importação
+- PDF e XLSX funcionam de forma independente
 
 ## ✅ Licença
 
