@@ -53,7 +53,7 @@ function importarPedidos(data, percoUnitario) {
             delivery: linha.delivery || 'Não',
             preco: precoTotal,
             metodo_pagamento: linha.metodo_pagamento || '',
-            pago: linha.pago || false,
+            pago: String(linha.pago).toLowerCase() === 'sim',
             status: linha.status || 'em_preparo'
         });
     });

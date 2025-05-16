@@ -10,6 +10,7 @@ const xlsx = require('xlsx');
 const pedidosController = require('./controllers/pedidosController');
 const exportController = require('./controllers/exportController');
 const backupController = require('./controllers/backupController');
+const settingController = require('./controllers/settingController');
 
 const app = express();
 const server = http.createServer(app);
@@ -20,6 +21,10 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const upload = multer({ dest: 'upload/' });
+
+app.get ('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public','admin.html'))
+})
 
 app.get('/pedidos', (req, res) => {
   res.json(pedidosController.getPedidos());
@@ -68,14 +73,23 @@ app.post('/import', upload.single('arquivo'), (req, res) => {
 });
 
 
-app.get('/exportar', (req, res) =>{;
+app.get('/exportar', (req, res) => {
+  ;
   req.pedidos = pedidosController.getPedidos();
-  exportController.exportarPedidos(req,res);
+  exportController.exportarPedidos(req, res);
 })
-app.get('/exportar-pdf',(req,res) =>{
+app.get('/exportar-pdf', (req, res) => {
   req.pedidos = pedidosController.getPedidos();
-  exportController.exportarPDF(req,res);
+  exportController.exportarPDF(req, res);
 })
+
+let configuracoes = {
+  qrcode_pix: '',
+  preco_unitario: 0
+}
+app.post('/configuracoes', express.json(), settingController.salvarConfiguracoes);
+
+app.get('/configuracoes', settingController.obterConfiguracoes);
 
 setInterval(() => {
   backupController.salvarBackup(pedidosController.getPedidos());

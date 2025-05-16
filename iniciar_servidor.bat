@@ -11,4 +11,8 @@ echo.
 
 node server.js
 
+<<<<<<< HEAD
 pause
+=======
+pause
+>>>>>>> 5fc574c (Atualização da estrutura e criação de painel adm)

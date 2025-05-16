@@ -17,6 +17,9 @@ Aplicativo web para gestão de pedidos de hamburgueria (desenvolvido para atuaç
 - 🧾 **Etiqueta personalizada estilo cupom fiscal com QRCode PIX**
 - 📊 **Tela separada (index2.html) com pedidos em preparo e prontos**
 - 📄 **Emissão de relatorio automativo em PDF (Pdfmaker)**
+- 📊 **Painel adminstrativo para CRUD dos pedidos**
+- ⚙️ **Painel para configurações de QRCODE PIX + preço unitario**
+- 🧮 **Calculo dinamico do preco total do pedido (relação quantidade x valor unitario)**
 ---
 
 ## 🧠 Tecnologias utilizadas
@@ -41,9 +44,15 @@ Aplicativo web para gestão de pedidos de hamburgueria (desenvolvido para atuaç
 │ ├── exportController.js
 │ └── backupController.js
 ├── public/
+│   ├── js/
+│       └── main.js
+│       └── funcoescomuns.js
+│       └── admin.js
+│   ├── styles
+│       └── styles.css
 │ ├── index.html
 │ ├── index2.html
-│ └── main.js
+│ └── index-gestao.html
 ├── fonts/ (para PDF)
 │ └── Roboto-*.ttf
 ├── upload/ (planilhas temporárias)
@@ -123,6 +132,7 @@ Campos ausentes serão preenchidos com valores padrão.
 - Novo layout de relatório em PDF
 - Corrigido bug do horário de retirada na importação
 - PDF e XLSX funcionam de forma independente
+- Criação de um novo painel para CRUD dos pedidos e atualização dinamica.
 
 ## ✅ Licença
 

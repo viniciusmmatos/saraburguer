@@ -1,5 +1,6 @@
 node_modules/
 upload/
+configuracoes.json
 *.xlsx
 *.log
 .env

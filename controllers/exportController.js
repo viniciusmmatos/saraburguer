@@ -96,11 +96,7 @@ function exportarPDF(req, res) {
             content: [
                 { text: 'Relatório Sara Almirante', style: 'header', alignment: 'center' },
                 { text: `Gerado em: ${new Date().toLocaleString()}`, style: 'small', alignment: 'center' },
-                { text: '\nVendas por Equipe', style: 'subheader' },
-                { text: `Equipe destaque: ${equipeTop}  |  Vendedor: ${vendedorTop}\n\n`, style: 'normal' },
-                { table: { body: tabelaResumo }, layout: 'lightHorizontalLines' },
-                { text: 'Extrato de Pedidos', style: 'subheader' },
-                { table: { body: tabelaPedidos }, layout: 'lightHorizontalLines' },
+                {text: '\n'},
                 { text: '\nResumo Geral', style: 'subheader' },
                 {
                     table: {
@@ -115,7 +111,12 @@ function exportarPDF(req, res) {
                     },
                     layout: 'lightHorizontalLines',
                     margin: [0, 0, 0, 10]
-                }
+                },
+                { text: '\nVendas por Equipe', style: 'subheader' },
+                { text: `Equipe destaque: ${equipeTop}  |  Vendedor: ${vendedorTop}\n\n`, style: 'normal' },
+                { table: { body: tabelaResumo }, layout: 'lightHorizontalLines' },
+                { text: 'Extrato de Pedidos', style: 'subheader' },
+                { table: { body: tabelaPedidos }, layout: 'lightHorizontalLines' },
             ],
             styles: {
                 header: { fontSize: 18, bold: true },

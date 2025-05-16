@@ -1,143 +1,137 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestão de Pedidos</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet" />
-  <style src="/public/styles/styles.css"></style>
+    <meta charset="UTF-8">
+    <title>Administração - Sara Burguer</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script defer src="./js/admin.js"></script>
+    <script src="./js/funcoesComuns.js"></script>
+    <script src="http://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 p-8">
-  <h1 class="text-4xl font-bold mb-7">Painel de gestão dos pedidos | SARABURGUER 🍔🧑🏻‍🍳</h1>
-  <!-- Botões superiores -->
-  <div class="flex justify-between items-center mb-6">
-    <div class="flex space-x-4">
-      <button onclick="alterarFormulario()" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded">
-        ➕ Novo Pedido
-      </button>
-      <button onclick="imprimirSelecionados()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded">
-        🖨️ Imprimir Selecionados
-      </button>
-      <button onclick="imprimirTodosEmPreparo()" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">
-        🖨️ Imprimir Todos em Preparo
-      </button>
-      <button onclick="exportarBackup()" class="bg-blue-800 hover:bg-blue-900 text-white py-2 px-4 rounded">
-        📤 Exportar Backup
-      </button>
-      <a href="/exportar-pdf" target="_blank" class="bg-blue-600 hover:bg-pink-700 text-white py-2 px-4 rounded">
-        📄 Baixar Relatório PDF
-      </a>
+
+<body class="p-4 bg-gray-100">
+    <header class="mb-4 flex justify-between items-center">
+        <h1 class="text-2x1 font-bold">Painel Administrativo - Comercial</h1>
+        <div class="space-x-2">
+            <button onclick="mostrarConfiguracoes()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">⚙️ Configurações</button>
+            <button onclick="alterarFormulario()" class="bg-green-600 hover:bg-gray-700 text-white py-2 px-4 rounded">
+                ➕ Novo Pedido / Importar
+            </button> <a href="/exportar" class="bg-blue-600 text-white px-4 py-2 rounded">📤 Exportar planilha</a>
+            <a href="/exportar-pdf" target="_blank" class="bg-yellow-600 text-white px-4 py-2 rounded">📤 Exportar relatorio PDF</a>
+            <a href="index-gestao.html" target="_blank"
+                class="ml-auto bg-green-600 hover:bg-red-700 text-white py-2 px-4 rounded">
+                🍔 Painel de pedidos
+            </a>
+        </div>
+    </header>
+    <div id ="configuracoes"class = "hidden max-w-2x1 mx-auto bg-white p-6 rounded shadow my-4 border border-gray-300">
+        <h2 class="text-lg font-bold mb-4">⚙️ Configurações do Sistema</h2>
+
+        <form id="form-configuracoes" class="space-y-4">
+            <div>
+                <label class="block font-semibold">💰 Preço unitário do hambúrguer (R$):</label>
+                <input type="number" step="0.01" id="preco_unitario" class="border p-2 w-full rounded" required>
+            </div>
+
+            <div>
+                <label class="bock font-semibold">🔗 Código copia e cola PIX (completo)</label>
+                <input type="text" id="qrcode_pix" class="border p-2 w-full rounded" required>
+            </div>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                💾 Salvar Configurações
+            </button>
+        </form>
+        <p id="msg-config" class="mt-4 text-sm text-green-600 hidden">Configurações salvas com sucesso!</p>
     </div>
 
-    <a href="index2.html" target="_blank" class="ml-auto bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">
-      🍳 Painel da Cozinha
-    </a>
-  </div>
-<!-- Formulario de novo pedido -->
-  <div id="bloco-formulario" class="mb-6 bg-white p-4 rounded shadow hidden">
-    <h2 class="text-xl font-bold mb-4">Novo Pedido</h2>
-    <form id="form-novo-pedido" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <input name="nome_cliente" class="border p-2 rounded" placeholder="Nome do Cliente" required>
-      <input name="telefone" class="border p-2 rounded" placeholder="Telefone" required>
-      <input name="endereco" class="border p-2 rounded" placeholder="Endereço">
-      <select name="equipe_vendedor" class="border p-2 rounded" required>
-        <option value="">Selecione a equipe</option>
-        <option value="igreja">Igreja</option>
-        <option value="atalaia">Atalaia</option>
-        <option value="valentes">Valentes</option>
-        <option value="despertar">Despertar</option>
-        <option value="thunder">Thunder</option>
-        <option value="flame">Flame</option>
-      </select>
-      <input name="vendedor" class="border p-2 rounded" placeholder="Quem vendeu?" required>
-      <select name="item_pedido" class="border p-2 rounded" required>
-        <option value="">Selecione o tipo do hamburguer</option>
-        <option value="hamburguer">Hamburguer</option>
-      </select>
-      <input name="quantidade" type="number" min="1" class="border p-2 rounded" placeholder="Quantidade de hamburgueres"
-        required>
-      <input name="descricao" class="border p-2 rounded" placeholder="Quantos são especiais e o que retira">
-      <input name="hora_retirada" type="time" class="border p-2 rounded" required>
-      <select name="delivery" class="border p-2 rounded" required>
-        <option value="">Selecione se é para entrega</option>
-        <option value="sim">Sim</option>
-        <option value="nao">Não</option>
-      </select>
-      <select name="metodo_pagamento" class="border p-2 rounded col-span-2 md:col-span-1" required>
-        <option value="">Método de Pagamento</option>
-        <option value="dinheiro">Dinheiro</option>
-        <option value="pix">PIX</option>
-        <option value="cartao">Cartão</option>
-      </select>
-      <input name="troco_para" type="number" step="0.01" class="border p-2 rounded col-span-2 md:col-span-1"
-        placeholder="Troco para (se dinheiro)">
-      <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white rounded p-2 col-span-2">Criar
-        Pedido</button>
-    </form>
+    <div id="bloco-formulario" class="mb-6 bg-white p-4 rounded shadow hidden">
+        <h2 class="text-xl font-bold mb-4">Novo Pedido</h2>
+        <form id="form-novo-pedido" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input name="nome_cliente" class="border p-2 rounded" placeholder="Nome do Cliente" required>
+            <input name="telefone" class="border p-2 rounded" placeholder="Telefone" required>
+            <input name="endereco" class="border p-2 rounded" placeholder="Endereço">
+            <select name="equipe_vendedor" class="border p-2 rounded" required>
+                <option value="">Selecione a equipe</option>
+                <option value="igreja">Igreja</option>
+                <option value="atalaia">Atalaia</option>
+                <option value="valentes">Valentes</option>
+                <option value="despertar">Despertar</option>
+                <option value="thunder">Thunder</option>
+                <option value="flame">Flame</option>
+            </select>
+            <input name="vendedor" class="border p-2 rounded" placeholder="Quem vendeu?" required>
+            <select name="item_pedido" class="border p-2 rounded" required>
+                <option value="">Selecione o tipo do hamburguer</option>
+                <option value="hamburguer">Hamburguer</option>
+            </select>
+            <input name="quantidade" type="number" min="1" class="border p-2 rounded"
+                placeholder="Quantidade de hamburgueres" required>
+            <input name="descricao" class="border p-2 rounded" placeholder="Quantos são especiais e o que retira">
+            <input name="hora_retirada" type="time" class="border p-2 rounded" required>
+            <select name="delivery" class="border p-2 rounded" required>
+                <option value="">Selecione se é para entrega</option>
+                <option value="SIM">Sim</option>
+                <option value="NAO">Não</option>
+            </select>
+            <select name="metodo_pagamento" class="border p-2 rounded col-span-2 md:col-span-1" required>
+                <option value="">Método de Pagamento</option>
+                <option value="dinheiro">Dinheiro</option>
+                <option value="pix">PIX</option>
+                <option value="cartao">Cartão</option>
+            </select>
+            <input name="troco_para" type="number" step="0.01" class="border p-2 rounded col-span-2 md:col-span-1"
+                placeholder="Troco para (se dinheiro)">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white rounded p-2 col-span-2">Criar
+                Pedido</button>
+        </form>
 
-    <form id="form-importar" enctype="multipart/form-data" class="flex items-center space-x-2 mt-4">
-      <button type="button" onclick="mostrarCampoUpload()"
-        class="bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded">📥 Importar Pedidos</button>
-      <div id="area-upload" class="hidden flex items-center space-x-2">
-        <input type="file" name="arquivo" accept=".xlsx" class="text-sm p-1 border rounded" required>
-        <button type="submit" class="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded"
-          id="botao-enviar">Enviar</button>
-      </div>
-    </form>
-  </div>
-  <!--Notificação pedido pronto-->
-  <div id="notificacao" class="fixed top-5 right-5 z-50 hidden">
-    <div class ="bg-white border border-blue-300 border-blue-300 rounded-lg p-4 shadow-lg flex items-start space-x-3">
-      <div class="text-green-500 mt-1">
-        ✅
-      </div>
-      <div class="block font-semibold">
-        <strong class="block font-semibold">Notificação</strong>
-          <br><span class="texto-notificacao">Novo pedido criado!</span>
-      </div>
-      <button onclick="fecharNotificacao()" class="ml-4 text-gray-400 hover:text-gray-600">&times;</button>
+        <form id="form-importar" enctype="multipart/form-data" class="flex items-center space-x-2 mt-4">
+            <button type="button" onclick="mostrarCampoUpload()"
+                class="bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded">📥 Importar Pedidos</button>
+            <div id="area-upload" class="hidden flex items-center space-x-2">
+                <input type="file" name="arquivo" accept=".xlsx" class="text-sm p-1 border rounded" required>
+                <button type="submit" class="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded"
+                    id="botao-enviar">Enviar</button>
+            </div>
+        </form>
     </div>
+    <p>Atenção! Não efetue alterações nos campos se não for necessario, atualização em tempo real!</p>
+    <div class="flex justify-end space-x-4 mb-4">
+    <input id="filtro-nome" placeholder="Filtrar por nome" class="border p-1 rounded">
+    <select id="filtro-status" class="border p-2 rounded">
+      <option value="">Todos os status</option>
+      <option value="em_preparo">Em preparo</option>
+      <option value="pronto">Pronto</option>
+      <option value="em_transito">Em Transito</option>
+      <option value="entregue">Entregue</option>
+    </select>
+    <select id="filtro-delivery" class="border p-2 rounded">
+      <option value="">Delivery</option>
+      <option value="sim">Sim</option>
+      <option value="nao">Não</option>
+    </select>
   </div>
-    <!-- filtro-->
-   <div class="flex justify-end space-x-4 mb-4">
-      <input id="filtro-nome" placeholder="Filtrar por nome" class="border p-1 rounded ">
-        <select id="filtro-status" class="border p-2 rounded">
-          <option value="">Todos os status</option>
-          <option value="em_preparo">Em preparo</option>
-          <option value="pronto">Pronto</option>
-          <option value="em_transito">Em Transito</option>
-          <option value="entregue">Entregue</option>
-        </select>
-        <select id="filtro-delivery" class="border p-2 rounded">
-          <option value="">Delivery</option>
-          <option value="sim">Sim</option>
-          <option value="nao">Não</option>
-        </select>
-   </div>
-  <!-- parte superior da tabela -->
-  <table class="min-w-full bg-white rounded shadow">
-    <thead>
-      <tr>
-        <th class="px-4 py-2 border">Selecionar</th>
-        <th class="px-4 py-2 border">ID</th>
-        <th class="px-4 py-2 border">Nome</th>
-        <th class="px-4 py-2 border">QTD</th>
-        <th class="px-4 py-2 border">Item</th>
-        <th class="px-4 py-2 border">Descrição</th>
-        <th class="px-4 py-2 border">Vendedor</th>
-        <th class="px-4 py-2 border">Delivery</th>
-        <th class="px-4 py-2 border">Hora entrega</th>
-        <th class="px-4 py-2 border">Preço</th>
-        <th class="px-4 py-2 border">Pago</th>
-        <th class="px-4 py-2 border">Status</th>
-        <th class="px-4 py-2 border">Ações</th>
-      </tr>
-    </thead>
-    <tbody id="tabela-pedidos"></tbody>
-  </table>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/main.js"></script>
+    <table class="w-full table-auto bg-white rounded shadow">
+        <thead class="bg-gray-200">
+            <tr>
+                <th class="p-1">#ID</th>
+                <th class="p-2">Retirada</th>
+                <th class="p-2">Nome</th>
+                <th class="p-2">Delivery</th>
+                <th class="p-2">Telefone</th>
+                <th class="p-2">Endereço</th>
+                <th class="p-2">Mtd. Pgto</th>
+                <th class="p-1">Qtd</th>
+                <th class="p-2">R$</th>
+                <th class="p-2">Equipe</th>
+                <th class="p-2">Status</th>
+                <th class="p-2">PAGO</th>
+                <th class="p-2">Ações</th>
+            </tr>
+        </thead>
+        <tbody id="tabela-admin" class="text-center"></tbody>
+    </table>
 </body>
 
 </html>

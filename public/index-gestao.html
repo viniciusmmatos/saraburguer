@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestão de Pedidos</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet" />
+  <style src="/public/styles/styles.css"></style>
+</head>
+
+<body class="bg-gray-50 p-8">
+  <h1 class="text-2xl font-bold mb-4">Painel de gestão dos pedidos</h1>
+  <!-- Botões superiores -->
+  <div class="flex justify-between items-center mb-6">
+    <div class="flex space-x-4">
+      <button onclick="imprimirSelecionados()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded">
+        🖨️ Imprimir Selecionados
+      </button>
+      <a href="index.html" target="_blank" class="ml-auto bg-green-600 hover:bg-red-700 text-white py-2 px-4 rounded">
+        📊 Administrativo
+      </a>
+    </div>
+    <a href="index2.html" target="_blank" class="ml-auto bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">
+      🍳 Painel da Cozinha
+    </a>
+  </div>
+  <!--Notificação pedido pronto-->
+  <div id="notificacao" class="fixed top-5 right-5 z-50 hidden">
+    <div class="bg-white border border-blue-300 border-blue-300 rounded-lg p-4 shadow-lg flex items-start space-x-3">
+      <div class="text-green-500 mt-1">
+        ✅
+      </div>
+      <div class="block font-semibold">
+        <strong class="block font-semibold">Notificação</strong>
+        <br><span class="texto-notificacao">Novo pedido criado!</span>
+      </div>
+      <button onclick="fecharNotificacao()" class="ml-4 text-gray-400 hover:text-gray-600">&times;</button>
+    </div>
+  </div>
+  <!-- filtro-->
+  <div class="flex justify-end space-x-4 mb-4">
+    <input id="filtro-nome" placeholder="Filtrar por nome" class="border p-1 rounded">
+    <select id="filtro-status" class="border p-2 rounded">
+      <option value="">Todos os status</option>
+      <option value="em_preparo">Em preparo</option>
+      <option value="pronto">Pronto</option>
+      <option value="em_transito">Em Transito</option>
+      <option value="entregue">Entregue</option>
+    </select>
+    <select id="filtro-delivery" class="border p-2 rounded">
+      <option value="">Delivery</option>
+      <option value="sim">Sim</option>
+      <option value="nao">Não</option>
+    </select>
+  </div>
+  <!-- parte superior da tabela -->
+  <table class="min-w-full bg-white rounded shadow">
+    <thead>
+      <tr>
+        <th class="px-4 py-2 border">Selecionar</th>
+        <th class="px-2 py-2 border">ID</th>
+        <th class="px-4 py-2 border">Nome</th>
+        <th class="px-4 py-2 border">QTD</th>
+        <th class="px-4 py-2 border">Item</th>
+        <th class="px-4 py-2 border">Descrição</th>
+        <th class="px-4 py-2 border">Delivery</th>
+        <th class="px-4 py-2 border">Retirada</th>
+        <th class="px-4 py-2 border">Status</th>
+        <th class="px-4 py-2 border">Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabela-pedidos"></tbody>
+  </table>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="./js/funcoesComuns.js"></script>
+  <script src="./js/main.js"></script>
+</body>
+
+</html>
