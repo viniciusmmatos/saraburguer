@@ -35,33 +35,6 @@ function renderizarTabela(pedidos) {
   });
 }
 
-// filtro
-function aplicarFiltro() {
-
-  const nomeFiltro = document.getElementById('filtro-nome').value.toLowerCase();
-  const statusFiltro = document.getElementById('filtro-status').value;
-  const deliveryFiltro = document.getElementById('filtro-delivery').value;
-
-  const pedidosFiltrados = pedidosCache.filter(p => {
-    const nomeMatch = p.nome_cliente.toLowerCase().includes(nomeFiltro);
-    const statusMatch = !statusFiltro || p.status === statusFiltro;
-    const deliveryMatch = !deliveryFiltro || p.delivery === deliveryFiltro;
-    return nomeMatch && statusMatch && deliveryMatch;
-  });
-
-  renderizarTabela(pedidosFiltrados)
-
-}
-
-document.getElementById('filtro-nome').addEventListener('input', aplicarFiltro);
-document.getElementById('filtro-status').addEventListener('change', aplicarFiltro);
-document.getElementById('filtro-delivery').addEventListener('change', aplicarFiltro);
-
-socket.on('pedidos_atualizados', (dados) => {
-  pedidosCache = dados;
-  aplicarFiltro();
-})
-
 //gera a tabela
 socket.on('pedidos_atualizados', renderizarTabela);
 async function carregarPedidos() {
@@ -69,6 +42,36 @@ async function carregarPedidos() {
   const dados = await resp.json();
   renderizarTabela(dados);
 }
+
+// filtro
+function aplicarFiltro() {
+
+  const nomeFiltro = document.getElementById('filtro-nome')?.value.toLowerCase();
+  const statusFiltro = document.getElementById('filtro-status')?.value;
+  const deliveryFiltro = document.getElementById('filtro-delivery')?.value;
+  const horarioFiltro = document.getElementById('filtro-horario')?.value;
+
+  const pedidosFiltrados = pedidosCache.filter(p => {
+    const nomeMatch = p.nome_cliente.toLowerCase().includes(nomeFiltro);
+    const statusMatch = !statusFiltro || p.status === statusFiltro;
+    const deliveryMatch = !deliveryFiltro || p.delivery === deliveryFiltro;
+    const horarioMatch = !horarioFiltro || (p.hora_retirada && p.hora_retirada.includes(horarioFiltro));
+    return nomeMatch && statusMatch && deliveryMatch && horarioMatch;
+  });
+
+  renderizarTabela(pedidosFiltrados)
+
+}
+
+socket.on('pedidos_atualizados', (dados) => {
+  pedidosCache = dados;
+  aplicarFiltro();
+})
+
+document.getElementById('filtro-nome').addEventListener('input', aplicarFiltro);
+document.getElementById('filtro-status').addEventListener('change', aplicarFiltro);
+document.getElementById('filtro-delivery').addEventListener('change', aplicarFiltro);
+document.getElementById('filtro-horario')?.addEventListener('input', aplicarFiltro);
 
 //alteração de status faz interação com o INDEX2 (tela de pedidos prontos e em preparo)
 async function alterarStatus(id, novoStatus) {

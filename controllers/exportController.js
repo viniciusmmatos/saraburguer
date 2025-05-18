@@ -85,7 +85,7 @@ function exportarPDF(req, res) {
                 `#${p.id}`,
                 p.nome_cliente,
                 p.equipe_vendedor,
-                p.quantidade.toString(),
+                p.quantidade,
                 `R$ ${p.preco.toFixed(2)}`,
                 p.pago ? 'Pago' : 'Pendente'
             ])

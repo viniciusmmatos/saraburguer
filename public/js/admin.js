@@ -19,7 +19,7 @@ function renderizarTabela(pedidos) {
       <td class="p-2"><input value="${p.telefone}" class="border p-1 w-32" onchange="editarCampo(${p.id},'telefone',this.value)" /></td>
       <td class="p-2"><input value="${p.endereco}" class="border p-1 w-48" onchange="editarCampo(${p.id},'endereco',this.value)" /></td>
       <td class="p-2"><input value="${p.metodo_pagamento}" class="border p-1 w-28" onchange="editarCampo(${p.id},'metodo_pagamento',this.value)" /></td>
-      <td class="p-1"><input type="number" value="${p.quantidade}" class="border p-1 w-12" onchange="editarCampo(${p.id},'quantidade',this.value)" /></td>
+      <td class="p-1"><input type="number" value="${p.quantidade}" class="border p-1 w-12" onchange="editarCampo(${p.id},'quantidade',parseInt(this.value))" /></td>
       <td class="p-2">R$ ${p.preco.toFixed(2)}</td>
       <td class="p-2">${p.equipe_vendedor}</td>
       <td class="px-4 py-2">
@@ -79,9 +79,9 @@ function aplicarFiltro() {
 
 }
 
-document.getElementById('filtro-nome').addEventListener('input', aplicarFiltro);
-document.getElementById('filtro-status').addEventListener('change', aplicarFiltro);
-document.getElementById('filtro-delivery').addEventListener('change', aplicarFiltro);
+document.getElementById('filtro-nome')?.addEventListener('input', aplicarFiltro);
+document.getElementById('filtro-status')?.addEventListener('change', aplicarFiltro);
+document.getElementById('filtro-delivery')?.addEventListener('change', aplicarFiltro);
 
 socket.on('pedidos_atualizados', (dados) => {
   pedidosCache = dados;

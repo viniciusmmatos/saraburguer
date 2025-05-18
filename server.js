@@ -22,10 +22,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const upload = multer({ dest: 'upload/' });
 
-app.get ('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public','admin.html'))
-})
-
 app.get('/pedidos', (req, res) => {
   res.json(pedidosController.getPedidos());
 });
