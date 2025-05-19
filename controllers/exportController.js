@@ -154,7 +154,7 @@ function exportarPDF(req, res) {
                         width: ['auto', '*', '*', 'auto', '*', 'auto', 'auto'],
                         body: tabelaPedidos
                     }, layout: 'lightHorizontalLines',
-                    fontSize: 13,
+                    fontSize: 11,
                     margin: [0, 0, 0, 20]
                 }
             ],

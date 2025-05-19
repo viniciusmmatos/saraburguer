@@ -152,13 +152,12 @@ async function gerarEtiqueta(pedido) {
             <div class="center bold">--Dados para entrega--</div>
             <div><strong>Cliente:</strong> ${pedido.nome_cliente}</div>
             <div><strong>Vendedor:</strong> ${pedido.vendedor} <strong>EQUIPE:</strong> ${pedido.equipe_vendedor}</div>
-            <div class="separator"></div>
             <div><strong>ENDEREÇO:</strong> ${pedido.endereco}</div>
             <div><strong>TELEFONE:</strong> ${pedido.telefone}</div>
 
             <div class="separator"></div>
               <div class="center bold">Vai pagar no dinheiro ou Debito? Faz no PIX! 💗</div>
-              <div class="center bold">Não esquece de mandar o comprovante no whats!</div>
+              <div class="center bold">Comprovante: (41) 99999-9999</div>
               <div class="qrcode">
               ${qrcodeURL ?
                 `<img id ="qrpix"src="${qrcodeURL}" alt="QR code pix">`
@@ -198,12 +197,6 @@ function imprimirSelecionados() {
       const pedido = pedidos.find(p => p.id === id);
       if (pedido) gerarEtiqueta(pedido);
     });
-  });
-}
-
-function imprimirTodosEmPreparo() {
-  fetch('/pedidos').then(res => res.json()).then(pedidos => {
-    pedidos.filter(p => p.status === 'em_preparo').forEach(p => gerarEtiqueta(p));
   });
 }
 
