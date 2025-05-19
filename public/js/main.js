@@ -139,7 +139,7 @@ async function gerarEtiqueta(pedido) {
 
             <div class="separator"></div>
 
-            <div class="bold">Pedido #${pedido.id}</div>
+            <div class="bold">PEDIDO #${pedido.id}</div>
             <div><strong>${pedido.quantidade} x</strong> ${pedido.item_pedido}</div>
             <div>${pedido.descricao || ''}</div>
             <div><strong>Delivery:</strong> ${pedido.delivery} | <strong>Retirada:</strong> ${pedido.hora_retirada} </div>
@@ -152,11 +152,13 @@ async function gerarEtiqueta(pedido) {
             <div class="center bold">--Dados para entrega--</div>
             <div><strong>Cliente:</strong> ${pedido.nome_cliente}</div>
             <div><strong>Vendedor:</strong> ${pedido.vendedor} <strong>EQUIPE:</strong> ${pedido.equipe_vendedor}</div>
-            <div><strong>Endereço:</strong> ${pedido.endereco}</div>
-            <div><strong>Telefone:</strong> ${pedido.telefone}</div>
+            <div class="separator"></div>
+            <div><strong>ENDEREÇO:</strong> ${pedido.endereco}</div>
+            <div><strong>TELEFONE:</strong> ${pedido.telefone}</div>
 
             <div class="separator"></div>
               <div class="center bold">Vai pagar no dinheiro ou Debito? Faz no PIX! 💗</div>
+              <div class="center bold">Não esquece de mandar o comprovante no whats!</div>
               <div class="qrcode">
               ${qrcodeURL ?
                 `<img id ="qrpix"src="${qrcodeURL}" alt="QR code pix">`

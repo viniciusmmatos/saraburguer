@@ -15,7 +15,7 @@ const fonts = {
 const printer = new PdfPrinter(fonts);
 
 function exportarPedidos(req, res) {
-        try {
+    try {
         const pedidos = req.pedidos;
         const ws = utils.json_to_sheet(pedidos.map(p => ({ ...p, pago: p.pago ? 'Sim' : 'Não' })));
         const wb = utils.book_new();
@@ -34,6 +34,7 @@ function exportarPedidos(req, res) {
 function exportarPDF(req, res) {
     try {
         const pedidos = req.pedidos;
+
         // Cálculos de resumo
         const resumo = {
             totalPedidos: pedidos.length,
@@ -41,6 +42,19 @@ function exportarPDF(req, res) {
             totalPago: pedidos.filter(p => p.pago).reduce((soma, p) => soma + (p.preco || 0), 0),
             totalPendente: pedidos.filter(p => !p.pago).reduce((soma, p) => soma + (p.preco || 0), 0)
         };
+
+        //tabela por metodo de pagamento x recebido (logica)
+        const totalPix = pedidos
+            .filter(p => p.pago && (p.metodo_pagamento || '').toLowerCase().includes('pix'))
+            .reduce((soma, p) => soma + (p.preco || 0), 0);
+
+        const totalDinheiro = pedidos
+            .filter(p => p.pago && (p.metodo_pagamento || '').toLowerCase().includes('dinheiro'))
+            .reduce((soma, p) => soma + (p.preco || 0), 0);
+
+        const totalCartao = pedidos
+            .filter(p => p.pago && (p.metodo_pagamento || '').toLowerCase().includes('cartão'))
+            .reduce((soma, p) => soma + (p.preco || 0), 0);
 
         // Organização por equipe
         const porEquipe = {};
@@ -67,7 +81,7 @@ function exportarPDF(req, res) {
             }
         }
 
-        // Monta a tabela resumo por equipe
+        // Tabelas
         const tabelaResumo = [
             ['Equipe', 'Qtd', 'Valor Pago', 'Valor Pendente'],
             ...Object.entries(porEquipe).map(([equipe, dados]) => [
@@ -78,63 +92,89 @@ function exportarPDF(req, res) {
             ])
         ];
 
-        // Monta a tabela de pedidos
         const tabelaPedidos = [
-            ['ID', 'Cliente', 'Equipe', 'Qtd', 'Valor', 'Pago'],
-            ...pedidos.map(p => [
-                `#${p.id}`,
-                p.nome_cliente,
-                p.equipe_vendedor,
-                p.quantidade,
-                `R$ ${p.preco.toFixed(2)}`,
-                p.pago ? 'Pago' : 'Pendente'
-            ])
+            [
+                { text: 'ID', bold: true },
+                { text: 'Cliente', bold: true },
+                { text: 'Equipe', bold: true },
+                { text: 'QTD', bold: true },
+                { text: 'Método', bold: true },
+                { text: 'Valor', bold: true },
+                { text: 'Pago', bold: true }
+            ],
+            ...pedidos.map(p => {
+                const cor = p.pago ? '#d4edda' : '#f8d7da'; // Verde claro ou vermelho claro
+                return [
+                    { text: `#${p.id}`, fillColor: cor },
+                    { text: p.nome_cliente, fillColor: cor },
+                    { text: p.equipe_vendedor, fillColor: cor },
+                    { text: p.quantidade, fillColor: cor },
+                    { text: p.metodo_pagamento || '---', fillColor: cor },
+                    { text: `R$ ${p.preco.toFixed(2)}`, fillColor: cor },
+                    { text: p.pago ? 'Pago' : 'Pendente', fillColor: cor }
+                ];
+            })
         ];
 
-        // Definição do conteúdo do PDF
+        const tabelaPagamentos = [
+            ['Metodo de pagamento', 'Total recebido'],
+            ['PIX', `R$ ${totalPix.toFixed(2)}`],
+            ['Dinheiro', `R$ ${totalDinheiro.toFixed(2)}`],
+            ['Cartão', `R$ ${totalCartao.toFixed(2)}`]
+        ];
+
+        // Conteúdo do PDF
         const docDefinition = {
             content: [
                 { text: 'Relatório Sara Almirante', style: 'header', alignment: 'center' },
                 { text: `Gerado em: ${new Date().toLocaleString()}`, style: 'small', alignment: 'center' },
-                {text: '\n'},
+                { text: '\n' },
                 { text: '\nResumo Geral', style: 'subheader' },
                 {
                     table: {
                         widths: ['*', '*', '*'],
-                        body: [
-                            [
-                                { text: ` Hamburgueres vendidos:\n${resumo.totalHamburgueres}`, style: 'infoBox', alignment: 'center' },
-                                { text: ` Pedidos realizados:\n${resumo.totalPedidos}`, style: 'infoBox', alignment: 'center' },
-                                { text: ` Faturamento total:\nR$ ${(resumo.totalPago + resumo.totalPendente).toFixed(2)}`, style: 'infoBox', alignment: 'center' }
-                            ]
-                        ]
+                        body: [[
+                            { text: ` Hamburgueres vendidos:\n${resumo.totalHamburgueres}`, style: 'infoBox', alignment: 'center' },
+                            { text: ` Pedidos realizados:\n${resumo.totalPedidos}`, style: 'infoBox', alignment: 'center' },
+                            { text: ` Faturamento total:\nR$ ${(resumo.totalPago + resumo.totalPendente).toFixed(2)}`, style: 'infoBox', alignment: 'center' }
+                        ]]
                     },
                     layout: 'lightHorizontalLines',
                     margin: [0, 0, 0, 10]
                 },
+                { text: 'Entradas por Método de Pagamento', style: 'subheader' },
+                { table: { body: tabelaPagamentos }, layout: 'lightHorizontalLines', margin: [0, 0, 0, 10] },
                 { text: '\nVendas por Equipe', style: 'subheader' },
                 { text: `Equipe destaque: ${equipeTop}  |  Vendedor: ${vendedorTop}\n\n`, style: 'normal' },
                 { table: { body: tabelaResumo }, layout: 'lightHorizontalLines' },
                 { text: 'Extrato de Pedidos', style: 'subheader' },
-                { table: { body: tabelaPedidos }, layout: 'lightHorizontalLines' },
+                {
+                    table: {
+                        headerRows: 1,
+                        width: ['auto', '*', '*', 'auto', '*', 'auto', 'auto'],
+                        body: tabelaPedidos
+                    }, layout: 'lightHorizontalLines',
+                    fontSize: 13,
+                    margin: [0, 0, 0, 20]
+                }
             ],
             styles: {
                 header: { fontSize: 18, bold: true },
                 subheader: { fontSize: 14, bold: true, margin: [0, 10, 0, 4] },
                 normal: { fontSize: 12 },
-                small: { fontSize: 10, color: 'gray' }
+                small: { fontSize: 10, color: 'gray' },
+                infoBox: {
+                    fontSize: 12,
+                    bold: true,
+                    margin: [5, 5, 5, 5],
+                }
             },
             defaultStyle: {
                 font: 'Roboto'
-            },
-            infoBox: {
-                fontSize: 12,
-                bold: true,
-                margin: [5, 5, 5, 5],
             }
         };
 
-        // Gerando PDF
+        // Geração do PDF
         const pdfDoc = printer.createPdfKitDocument(docDefinition);
         const chunks = [];
 
@@ -151,7 +191,7 @@ function exportarPDF(req, res) {
         console.error('Erro ao gerar PDF', err);
         res.status(500).json({ erro: 'Erro ao gerar relatório em PDF' });
     }
-};
+}
 
 module.exports = {
     exportarPedidos,
