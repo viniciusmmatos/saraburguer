@@ -54,7 +54,9 @@ function importarPedidos(data, percoUnitario) {
             preco: precoTotal,
             metodo_pagamento: linha.metodo_pagamento || '',
             pago: String(linha.pago).toLowerCase() === 'sim',
-            status: linha.status || 'em_preparo'
+            status: linha.status || 'em_fila',
+            observacao: linha.observacao || '',
+            valor_delivery: linha.valor_delivery
         });
     });
 }

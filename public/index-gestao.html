@@ -33,27 +33,50 @@
       </div>
       <div class="block font-semibold">
         <strong class="block font-semibold">Notificação</strong>
-        <br><span class="texto-notificacao">Novo pedido criado!</span>
+        <br><span class="texto-notificacao">Notificação</span>
       </div>
       <button onclick="fecharNotificacao()" class="ml-4 text-gray-400 hover:text-gray-600">&times;</button>
     </div>
   </div>
   <!-- filtro-->
   <div class="flex justify-end space-x-4 mb-4">
-    <input id="filtro-nome" placeholder="Filtrar por nome" class="border p-1 rounded">
-    <input type="time" id="filtro-horario" placeholder="Filtra por hora (ex: 19:00)" class="border p-1 rounded">
-    <select id="filtro-status" class="border p-2 rounded">
-      <option value="">Todos os status</option>
-      <option value="em_preparo">Em preparo</option>
-      <option value="pronto">Pronto</option>
-      <option value="em_transito">Em Transito</option>
-      <option value="entregue">Entregue</option>
-    </select>
-    <select id="filtro-delivery" class="border p-2 rounded">
-      <option value="">Delivery</option>
-      <option value="sim">Sim</option>
-      <option value="nao">Não</option>
-    </select>
+    <div class="flex flex-col">
+      <label for="filtro-nome" class="text-sm font-medium mb-1">🔍 Filtrar por nome</label>
+      <input id="filtro-nome" placeholder="" class="border p-1 rounded">
+    </div>
+    <div class="flex flex-col">
+      <label for="filtro-horario" class="text-sm font-medium mb-1">⏰ Filtrar por horario</label>
+      <select id="filtro-horario" class="border p-1 rounded">
+        <option value="">Todos os horarios</option>
+        <option value="19:00">19:00</option>
+        <option value="19:30">19:30</option>
+        <option value="20:00">20:00</option>
+        <option value="20:30">20:30</option>
+        <option value="21:00">21:00</option>
+        <option value="21:30">21:30</option>
+        <option value="22:00">22:00</option>
+        <option value="22:30">22:30</option>
+      </select>
+    </div>
+    <div class="flex flex-col">
+      <label for="filtro-status" class="text-sm font-medium mb-1">🥘 Filtrar por status</label>
+      <select id="filtro-status" class="border p-2 rounded">
+        <option value="">Todos os pedidos</option>
+        <option value="em_fila">Em fila</option>
+        <option value="em_preparo">Em preparo</option>
+        <option value="pronto">Pronto</option>
+        <option value="em_transito">Em Transito</option>
+        <option value="entregue">Entregue</option>
+      </select>
+    </div>
+    <div class="flex flex-col">
+      <label for="filtro-delivery" class="text-sm font-medium mb-1">🛵 Fitrar por delivery</label>
+      <select id="filtro-delivery" class="border p-2 rounded">
+        <option value="">Todos os pedidos</option>
+        <option value="sim">Sim</option>
+        <option value="nao">Não</option>
+      </select>
+    </div>
   </div>
   <!-- parte superior da tabela -->
   <table class="min-w-full bg-white rounded shadow">

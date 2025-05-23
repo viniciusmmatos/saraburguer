@@ -108,7 +108,7 @@ A planilha deve conter os seguintes campos:
 | troco_para        | número   | Se pagamento for em dinheiro       |
 | pago              | booleano | true / false                       |
 | status            | texto    | em_preparo / pronto / entregue     |
-
+| observacao        | texto    | informação para entrega            |
 Campos ausentes serão preenchidos com valores padrão.
 
 ---

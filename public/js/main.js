@@ -20,6 +20,7 @@ function renderizarTabela(pedidos) {
           <td class="px-4 py-2">${pedido.hora_retirada}</td>
           <td class="px-4 py-2">
             <select onchange="alterarStatus(${pedido.id}, this.value)" class="border rounded p-1 text-sm">
+              <option value="em_fila" ${pedido.status === 'em_fila' ? 'selected' : ''}>Em Fila</option>
               <option value="em_preparo" ${pedido.status === 'em_preparo' ? 'selected' : ''}>Em Preparo</option>
               <option value="pronto" ${pedido.status === 'pronto' ? 'selected' : ''}>Pronto</option>
               <option value="em_transito" ${pedido.status === 'em_transito' ? 'selected' : ''}>Em Trânsito</option>
@@ -98,7 +99,7 @@ async function gerarEtiqueta(pedido) {
     ? `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(config.qrcode_pix)}&size=150x150` : null;
     console.log(config);
     const janela = window.open('', '', 'width=210,height=auto');
-    const valorTotal = (pedido.preco || 0).toFixed(2);
+    const valorTotal = ((pedido.preco || 0) + (pedido.valor_delivery || 0)).toFixed(2);
     const trocoTexto = (pedido.metodo_pagamento === 'dinheiro' && pedido.troco) ?
       `<div><strong>Troco:</strong> R$: ${parseFloat(pedido.troco).toFixed(2)}</div>` : '';
 
@@ -144,6 +145,8 @@ async function gerarEtiqueta(pedido) {
             <div>${pedido.descricao || ''}</div>
             <div><strong>Delivery:</strong> ${pedido.delivery} | <strong>Retirada:</strong> ${pedido.hora_retirada} </div>
             <div class="separator"></div>
+            <div class="bold">Subtotal: R$ ${(pedido.preco).toFixed(2)}</div>
+            <div class="bold">Delivery: R$ ${(pedido.valor_delivery).toFixed(2)}</div>
             <div class="bold">Valor total: R$ ${valorTotal}</div>
             ${trocoTexto}
             <div>Mtd pagamento: ${pedido.metodo_pagamento}</div>
@@ -154,10 +157,11 @@ async function gerarEtiqueta(pedido) {
             <div><strong>Vendedor:</strong> ${pedido.vendedor} <strong>EQUIPE:</strong> ${pedido.equipe_vendedor}</div>
             <div><strong>ENDEREÇO:</strong> ${pedido.endereco}</div>
             <div><strong>TELEFONE:</strong> ${pedido.telefone}</div>
+            <div><strong> Observação:</strong> ${pedido.observacao}</div>
 
             <div class="separator"></div>
               <div class="center bold">Vai pagar no dinheiro ou Debito? Faz no PIX! 💗</div>
-              <div class="center bold">Comprovante: (41) 99999-9999</div>
+              <div class="center bold">Comprovante: (41) 9154-3299</div>
               <div class="qrcode">
               ${qrcodeURL ?
                 `<img id ="qrpix"src="${qrcodeURL}" alt="QR code pix">`
@@ -227,3 +231,8 @@ socket.on('notificacao_novo_pedido', (dados) => {
 function exportarBackup() {
   window.location.href = '/exportar';
 }
+
+//escuta deleção de pedido
+socket.on('notificacao_pedido_removido',(dados) =>{
+  mostrarNotificacao(`Pedido #${dados.id} (${dados.nome}) foi apagado;`)
+})

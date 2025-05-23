@@ -14,18 +14,20 @@
     <header class="mb-4 flex justify-between items-center">
         <h1 class="text-2x1 font-bold">Painel Administrativo - Comercial</h1>
         <div class="space-x-2">
-            <button onclick="mostrarConfiguracoes()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">⚙️ Configurações</button>
+            <button onclick="mostrarConfiguracoes()"
+                class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">⚙️ Configurações</button>
             <button onclick="alterarFormulario()" class="bg-green-600 hover:bg-gray-700 text-white py-2 px-4 rounded">
                 ➕ Novo Pedido / Importar
             </button> <a href="/exportar" class="bg-blue-600 text-white px-4 py-2 rounded">📤 Exportar planilha</a>
-            <a href="/exportar-pdf" target="_blank" class="bg-yellow-600 text-white px-4 py-2 rounded">📤 Exportar relatorio PDF</a>
+            <a href="/exportar-pdf" target="_blank" class="bg-yellow-600 text-white px-4 py-2 rounded">📤 Exportar
+                relatorio PDF</a>
             <a href="index-gestao.html" target="_blank"
                 class="ml-auto bg-green-600 hover:bg-red-700 text-white py-2 px-4 rounded">
                 🍔 Painel de pedidos
             </a>
         </div>
     </header>
-    <div id ="configuracoes"class = "hidden max-w-2x1 mx-auto bg-white p-6 rounded shadow my-4 border border-gray-300">
+    <div id="configuracoes" class="hidden max-w-2x1 mx-auto bg-white p-6 rounded shadow my-4 border border-gray-300">
         <h2 class="text-lg font-bold mb-4">⚙️ Configurações do Sistema</h2>
 
         <form id="form-configuracoes" class="space-y-4">
@@ -96,22 +98,47 @@
             </div>
         </form>
     </div>
+    <!--Filtro-->
     <div class="flex justify-end space-x-4 mb-4">
-    <input id="filtro-nome" placeholder="Filtrar por nome" class="border p-1 rounded">
-    <input type="time" id="filtro-horario" placeholder="Filtra por hora (ex: 19:00)" class="border p-1 rounded">
-    <select id="filtro-status" class="border p-2 rounded">
-      <option value="">Todos os status</option>
-      <option value="em_preparo">Em preparo</option>
-      <option value="pronto">Pronto</option>
-      <option value="em_transito">Em Transito</option>
-      <option value="entregue">Entregue</option>
-    </select>
-    <select id="filtro-delivery" class="border p-2 rounded">
-      <option value="">Delivery</option>
-      <option value="sim">Sim</option>
-      <option value="nao">Não</option>
-    </select>
-  </div>
+        <div class="flex flex-col">
+            <label for="filtro-nome" class="text-sm font-medium mb-1">🔍 Filtrar por nome</label>
+            <input id="filtro-nome" placeholder="" class="border p-1 rounded">
+        </div>
+        <div class="flex flex-col">
+            <label for="filtro-horario" class="text-sm font-medium mb-1">⏰ Filtrar por horario</label>
+            <select id="filtro-horario" class="border p-1 rounded">
+                <option value="">Todos os horarios</option>
+                <option value="19:00">19:00</option>
+                <option value="19:30">19:30</option>
+                <option value="20:00">20:00</option>
+                <option value="20:30">20:30</option>
+                <option value="21:00">21:00</option>
+                <option value="21:30">21:30</option>
+                <option value="22:00">22:00</option>
+                <option value="22:30">22:30</option>
+            </select>
+        </div>
+        <div class="flex flex-col">
+            <label for="filtro-status" class="text-sm font-medium mb-1">🥘 Filtrar por status</label>
+            <select id="filtro-status" class="border p-2 rounded">
+                <option value="">Todos os pedidos</option>
+                <option value="em_fila">Em fila</option>
+                <option value="em_preparo">Em preparo</option>
+                <option value="pronto">Pronto</option>
+                <option value="em_transito">Em Transito</option>
+                <option value="entregue">Entregue</option>
+            </select>
+        </div>
+        <div class="flex flex-col">
+            <label for="filtro-delivery" class="text-sm font-medium mb-1">🛵 Fitrar por delivery</label>
+            <select id="filtro-delivery" class="border p-2 rounded">
+                <option value="">Todos os pedidos</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+            </select>
+        </div>
+    </div>
+
     <table class="w-full table-auto bg-white rounded shadow">
         <caption class="caption-top text-red-700">
             Atenção! Não efetue alterações nos campos se não for necessario, atualização em tempo real!

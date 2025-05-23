@@ -18,12 +18,18 @@ function renderizarTabela(pedidos) {
       <td class="p-2">${p.delivery}</td>
       <td class="p-2"><input value="${p.telefone}" class="border p-1 w-32" onchange="editarCampo(${p.id},'telefone',this.value)" /></td>
       <td class="p-2"><input value="${p.endereco}" class="border p-1 w-48" onchange="editarCampo(${p.id},'endereco',this.value)" /></td>
-      <td class="p-2"><input value="${p.metodo_pagamento}" class="border p-1 w-28" onchange="editarCampo(${p.id},'metodo_pagamento',this.value)" /></td>
+      <td class="p-2">
+        <select class = "border p-1 w-28" onchange ="editarCampo(${p.id},'metodo_pagamento',this.value)">
+          <option value ="pix" ${p.metodo_pagamento.toLowerCase() === 'pix' ? 'selected' : ''}>PIX</option>
+          <option value ="Cartao" ${p.metodo_pagamento.toLowerCase() === 'cartao' ? 'selected' : ''}>Cartão</option>
+          <option value ="Dinheiro" ${p.metodo_pagamento.toLowerCase() === 'dinheiro' ? 'selected' : ''}>Dinheiro</option>
+      </td>
       <td class="p-1"><input type="number" value="${p.quantidade}" class="border p-1 w-12" onchange="editarCampo(${p.id},'quantidade',parseInt(this.value))" /></td>
       <td class="p-2">R$ ${p.preco.toFixed(2)}</td>
       <td class="p-2">${p.equipe_vendedor}</td>
       <td class="px-4 py-2">
             <select onchange="alterarStatus(${p.id}, this.value)" class="border rounded p-1 text-sm">
+              <option value="em_fila" ${p.status === 'em_fila' ? 'selected' : ''}>Em fila</option>
               <option value="em_preparo" ${p.status === 'em_preparo' ? 'selected' : ''}>Em Preparo</option>
               <option value="pronto" ${p.status === 'pronto' ? 'selected' : ''}>Pronto</option>
               <option value="em_transito" ${p.status === 'em_transito' ? 'selected' : ''}>Em Trânsito</option>

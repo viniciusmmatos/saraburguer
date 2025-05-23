@@ -46,8 +46,17 @@ app.put('/pedidos/:id', (req, res) => {
 
 app.delete('/pedidos/:id', (req, res) => {
   const id = parseInt(req.params.id);
+  const pedidoRemovido = pedidosController.getPedidos().find(p => p.id === id);
+
   pedidosController.deletarPedido(id);
   io.emit('pedidos_atualizados', pedidosController.getPedidos());
+
+  if(pedidoRemovido){
+    io.emit('notificacao_pedido_removido', {
+      id: pedidoRemovido.id,
+      nome: pedidoRemovido.nome_cliente
+    });
+  }
   res.json({ sucesso: true });
 });
 
