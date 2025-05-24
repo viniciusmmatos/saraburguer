@@ -53,7 +53,7 @@ function exportarPDF(req, res) {
             .reduce((soma, p) => soma + (p.preco || 0), 0);
 
         const totalCartao = pedidos
-            .filter(p => p.pago && (p.metodo_pagamento || '').toLowerCase().includes('cartão'))
+            .filter(p => p.pago && (p.metodo_pagamento || '').toLowerCase().includes('cartao'))
             .reduce((soma, p) => soma + (p.preco || 0), 0);
 
         // Organização por equipe
