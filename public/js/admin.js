@@ -186,7 +186,8 @@ if (formNovoPedido) {
       metodo_pagamento: formData.get("metodo_pagamento"),
       troco_para: troco_para,
       preco: precoTotal,
-      troco: troco
+      troco: troco,
+      valor_delivery: 0
     };
 
     await fetch('/pedidos', {

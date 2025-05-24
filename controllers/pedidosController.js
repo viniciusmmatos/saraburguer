@@ -56,7 +56,11 @@ function importarPedidos(data, percoUnitario) {
             pago: String(linha.pago).toLowerCase() === 'sim',
             status: linha.status || 'em_fila',
             observacao: linha.observacao || '',
+<<<<<<< HEAD
             valor_delivery: linha.valor_delivery || 0
+=======
+            valor_delivery: linha.valor_delivery || '0'
+>>>>>>> 89d5440 (CORREÇÃO: Bug da etiqueta em pedidos no formulario)
         });
     });
 }
