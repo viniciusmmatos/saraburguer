@@ -56,7 +56,7 @@ function importarPedidos(data, percoUnitario) {
             pago: String(linha.pago).toLowerCase() === 'sim',
             status: linha.status || 'em_fila',
             observacao: linha.observacao || '',
-            valor_delivery: linha.valor_delivery
+            valor_delivery: linha.valor_delivery || 1
         });
     });
 }
