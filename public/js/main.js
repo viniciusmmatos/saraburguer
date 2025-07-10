@@ -99,10 +99,17 @@ async function gerarEtiqueta(pedido) {
     ? `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(config.qrcode_pix)}&size=150x150` : null;
     console.log(config);
     const janela = window.open('', '', 'width=210,height=auto');
+
+    //calculos dos valores
     const valorTotal = ((pedido.preco || 0) + (pedido.valor_delivery || 0)).toFixed(2);
     const trocoTexto = (pedido.metodo_pagamento === 'dinheiro' && pedido.troco) ?
       `<div><strong>Troco:</strong> R$: ${parseFloat(pedido.troco).toFixed(2)}</div>` : '';
-
+    const desconto = (pedido.delivery.toLowerCase() === 'nao') ? 
+      `<div class ="bold">Desconto de 13,64% Aplicado</div>` : '';
+    const vlr_delivery = (pedido.valor_delivery === 0) ? 
+      '' : `<div class="bold">Delivery: R$ ${(pedido.valor_delivery).toFixed(2)}</div>`;
+    
+    // html do cupom
     janela.document.write(`<html>
         <head>
           <style>
@@ -146,7 +153,8 @@ async function gerarEtiqueta(pedido) {
             <div><strong>Delivery:</strong> ${pedido.delivery} | <strong>Retirada:</strong> ${pedido.hora_retirada} </div>
             <div class="separator"></div>
             <div class="bold">Subtotal: R$ ${(pedido.preco).toFixed(2)}</div>
-            <div class="bold">Delivery: R$ ${(pedido.valor_delivery).toFixed(2)}</div>
+            ${vlr_delivery}
+            ${desconto}
             <div class="bold">Valor total: R$ ${valorTotal}</div>
             ${trocoTexto}
             <div>Mtd pagamento: ${pedido.metodo_pagamento}</div>

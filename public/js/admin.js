@@ -47,26 +47,14 @@ function renderizarTabela(pedidos) {
 }
 
 async function editarCampo(id, campo, valor) {
-  const payload = { [campo]: valor}
-  if(campo === 'quantidade'){
-    const novaQuantidade = parseInt(valor) || 1;
-    const novoPreco = novaQuantidade * precoUnitario;
-    payload.preco = novoPreco;
-
-    const linha = [...tabela.children].find(row => row.innerText.includes(`${id}`));
-    if(linha){
-      const precoCell = linha.children[7];
-      precoCell.textContent = novoPreco.toFixed(2);
-    }
-  }
-
+  const payload = { [campo]: valor };
   await fetch(`/pedidos/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
+  carregarPedidos(renderizarTabela); // garante atualização correta com desconto recalculado
 }
-
 //filtro
 function aplicarFiltro() {
 
@@ -185,9 +173,9 @@ if (formNovoPedido) {
       delivery: formData.get("delivery"),
       metodo_pagamento: formData.get("metodo_pagamento"),
       troco_para: troco_para,
-      preco: precoTotal,
       troco: troco,
-      valor_delivery: 0
+      valor_delivery: 0,
+      preco_unitario: precoUnitario
     };
 
     await fetch('/pedidos', {
