@@ -20,6 +20,7 @@ Aplicativo web para gestão de pedidos de hamburgueria (desenvolvido para atuaç
 - 📊 **Painel adminstrativo para CRUD dos pedidos**
 - ⚙️ **Painel para configurações de QRCODE PIX + preço unitario**
 - 🧮 **Calculo dinamico do preco total do pedido (relação quantidade x valor unitario)**
+- 🧮 **Calculo de desconto diretamente no formulario e calculo de desconto percentual para pedidos de retirada**
 ---
 
 ## 🧠 Tecnologias utilizadas
@@ -109,6 +110,8 @@ A planilha deve conter os seguintes campos:
 | pago              | booleano | true / false                       |
 | status            | texto    | em_preparo / pronto / entregue     |
 | observacao        | texto    | informação para entrega            |
+| valor_delivery    | número   | valor para entrega                 |
+| desconto_especial | número   | valor desconto em real             |
 Campos ausentes serão preenchidos com valores padrão.
 
 ---
