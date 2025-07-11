@@ -10,7 +10,6 @@ function getPedidos() {
 function calcularPrecoTotal(pedido, precoUnitario) {
   const quantidade = parseInt(pedido.quantidade) || 1;
   const valorHamburguer = quantidade * precoUnitario;
-  const valorDelivery = parseFloat(pedido.valor_delivery) || 0;
 
   let precoFinal = valorHamburguer;
   let desconto_aplicado = false;
@@ -21,18 +20,15 @@ function calcularPrecoTotal(pedido, precoUnitario) {
     desconto_aplicado = true;
   }
 
-  precoFinal += valorDelivery;
-
   return {
     preco: parseFloat(precoFinal.toFixed(2)),
     desconto_aplicado,
-    valor_delivery: valorDelivery
   };
 }
 
 function adicionarPedidos(novoPedido) {
   const precoUnitario = parseFloat(novoPedido.preco_unitario || 0);
-  const { preco, desconto_aplicado, valor_delivery } = calcularPrecoTotal(novoPedido, precoUnitario);
+  const { preco, desconto_aplicado} = calcularPrecoTotal(novoPedido, precoUnitario);
 
   const pedido = {
     ...novoPedido,
@@ -40,8 +36,7 @@ function adicionarPedidos(novoPedido) {
     status: 'em_fila',
     pago: false,
     preco,
-    desconto_aplicado,
-    valor_delivery
+    desconto_aplicado
   };
 
   pedidos.push(pedido);
@@ -104,7 +99,8 @@ function importarPedidos(data, precoUnitario) {
       pago: String(linha.pago).toLowerCase() === 'sim',
       status: linha.status || 'em_fila',
       observacao: linha.observacao || '',
-      valor_delivery
+      valor_delivery,
+      desconto_especial: linha.desconto_especial
     };
 
     const { preco, desconto_aplicado } = calcularPrecoTotal(basePedido, precoUnitario);

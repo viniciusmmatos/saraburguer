@@ -95,15 +95,19 @@ async function gerarEtiqueta(pedido) {
   try {
     const configResp = await fetch('/configuracoes');
     const config = await configResp.json();
-    const qrcodeURL = config.qrcode_pix 
+    const qrcodeURL = config.qrcode_pix
     ? `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(config.qrcode_pix)}&size=150x150` : null;
     console.log(config);
     const janela = window.open('', '', 'width=210,height=auto');
+    const precoSemDesconto = config.preco_unitario
 
     //calculos dos valores
-    const valorTotal = ((pedido.preco || 0) + (pedido.valor_delivery || 0)).toFixed(2);
+    const subTotal = (parseFloat(precoSemDesconto) * parseInt(pedido.quantidade)).toFixed(2);
+    const valorTotal = ((pedido.preco || 0) + (pedido.valor_delivery || 0) - (pedido.desconto_especial || 0)).toFixed(2);
     const trocoTexto = (pedido.metodo_pagamento === 'dinheiro' && pedido.troco) ?
       `<div><strong>Troco:</strong> R$: ${parseFloat(pedido.troco).toFixed(2)}</div>` : '';
+    const descontoEspecial = (pedido.desconto_especial > 0) ? 
+      `<div class ="bold">Desconto: R$ ${parseFloat(pedido.desconto_especial).toFixed(2)}</div>` : '';
     const desconto = (pedido.delivery.toLowerCase() === 'nao') ? 
       `<div class ="bold">Desconto de 13,64% Aplicado</div>` : '';
     const vlr_delivery = (pedido.valor_delivery === 0) ? 
@@ -152,9 +156,10 @@ async function gerarEtiqueta(pedido) {
             <div>${pedido.descricao || ''}</div>
             <div><strong>Delivery:</strong> ${pedido.delivery} | <strong>Retirada:</strong> ${pedido.hora_retirada} </div>
             <div class="separator"></div>
-            <div class="bold">Subtotal: R$ ${(pedido.preco).toFixed(2)}</div>
-            ${vlr_delivery}
+            <div class="bold">Subtotal: R$ ${subTotal}</div>
+            ${descontoEspecial}
             ${desconto}
+            ${vlr_delivery}
             <div class="bold">Valor total: R$ ${valorTotal}</div>
             ${trocoTexto}
             <div>Mtd pagamento: ${pedido.metodo_pagamento}</div>
