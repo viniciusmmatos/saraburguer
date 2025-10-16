@@ -103,7 +103,7 @@ async function gerarEtiqueta(pedido) {
 
     //calculos dos valores
     const subTotal = (parseFloat(precoSemDesconto) * parseInt(pedido.quantidade)).toFixed(2);
-    const valorTotal = ((pedido.preco || 0) + (pedido.valor_delivery || 0) - (pedido.desconto_especial || 0)).toFixed(2);
+    const valorTotal = (parseFloat(pedido.preco) + parseFloat(pedido.valor_delivery)).toFixed(2);
     const trocoTexto = (pedido.metodo_pagamento === 'dinheiro' && pedido.troco) ?
       `<div><strong>Troco:</strong> R$: ${parseFloat(pedido.troco).toFixed(2)}</div>` : '';
     const descontoEspecial = (pedido.desconto_especial > 0) ? 
