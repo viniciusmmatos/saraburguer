@@ -10,8 +10,9 @@ function getPedidos() {
 function calcularPrecoTotal(pedido, precoUnitario) {
   const quantidade = parseInt(pedido.quantidade) || 1;
   const valorHamburguer = (quantidade * precoUnitario);
+  const descontoEspecial = Number(pedido.desconto_especial) || 0;
 
-  let precoFinal = valorHamburguer - (pedido.desconto_especial || 0);
+  let precoFinal = valorHamburguer - descontoEspecial;
   let desconto_aplicado = false;
 
   const deliveryFormatado = String(pedido.delivery).trim().toLowerCase();
